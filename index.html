@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" class="">
+<html lang="zh-Hant" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,13 +26,12 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* Custom scrollbar */
+        :root { --scrollbar-thumb: #888; --scrollbar-track: #f1f1f1; }
+        html.dark { --scrollbar-thumb: #718096; --scrollbar-track: #2d3748; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #555; }
-        .dark ::-webkit-scrollbar-track { background: #2d3748; }
-        .dark ::-webkit-scrollbar-thumb { background: #718096; }
-        .dark ::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
         
         /* ToastUI Editor Dark Mode Tweaks */
         .toastui-editor-defaultUI { border: 0 !important; }
@@ -50,7 +49,7 @@
 
     <div class="flex">
         <!-- Sidebar -->
-        <aside id="sidebar" class="w-72 bg-white dark:bg-gray-800 h-screen p-6 border-r border-gray-200 dark:border-gray-700 fixed top-0 left-0 z-30 transition-transform duration-300 -translate-x-full md:translate-x-0 flex-col flex">
+        <aside id="sidebar" class="w-72 bg-white dark:bg-gray-800 h-screen p-6 border-r border-gray-200 dark:border-gray-700 fixed top-0 left-0 z-30 transition-transform duration-300 flex-col flex">
             <div class="text-center mb-6">
                 <h1 id="site-title-sidebar" class="text-3xl font-bold text-indigo-600 dark:text-indigo-400 cursor-pointer">🌐 KAI STUDIO</h1>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">探索音樂的無限可能。</p>
@@ -62,16 +61,14 @@
             </div>
 
             <div class="mb-4">
-                <label for="sort-order" class="text-xs font-bold uppercase text-gray-500">排序方式</label>
-                <select id="sort-order" class="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-sm">
-                    <option value="newest">最新日期</option>
-                    <option value="oldest">最舊日期</option>
-                    <option value="views">最多觀看</option>
+                <label for="sort-order" class="text-xs font-bold uppercase text-gray-500 dark:text-gray-400">排序方式</label>
+                <select id="sort-order" class="form-select mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-sm">
+                    <option value="newest">最新日期</option><option value="oldest">最舊日期</option><option value="views">最多觀看</option>
                 </select>
             </div>
             
             <div class="mb-4">
-                <h3 class="text-xs font-bold uppercase text-gray-500 mb-2">熱門標籤</h3>
+                <h3 class="text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-2">熱門標籤</h3>
                 <div id="popular-tags-container" class="flex flex-wrap gap-2"></div>
             </div>
 
@@ -88,95 +85,75 @@
         </aside>
 
         <!-- Main Content -->
-        <main id="main-content" class="w-full md:ml-72 p-6 sm:p-12 transition-all duration-300">
-            <header class="flex justify-between items-center mb-8">
+        <main id="main-content" class="w-full transition-all duration-300">
+            <header class="sticky top-0 z-20 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-md flex items-center p-4 md:p-6 border-b dark:border-gray-700 mb-6">
                 <button id="sidebar-toggle" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 </button>
             </header>
             
-            <div id="home-view" class="view"><h2 id="page-title" class="text-3xl font-bold mb-8 border-l-4 border-indigo-500 pl-4">最新文章</h2><div id="article-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div></div>
-            <div id="article-view" class="view"></div>
-            <div id="tags-view" class="view"><h2 class="text-3xl font-bold mb-8 border-l-4 border-indigo-500 pl-4">所有標籤</h2><div id="tags-container" class="flex flex-wrap gap-4"></div></div>
+            <div class="px-6 sm:px-12 pb-12">
+                <div id="home-view" class="view"><h2 id="page-title" class="text-3xl font-bold mb-8 border-l-4 border-indigo-500 pl-4"></h2><div id="article-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div></div>
+                <div id="article-view" class="view"></div>
+                <div id="tags-view" class="view"><h2 class="text-3xl font-bold mb-8 border-l-4 border-indigo-500 pl-4">所有標籤</h2><div id="tags-container" class="flex flex-wrap gap-4"></div></div>
+                <div id="loading-view" class="view flex justify-center items-center h-64"><div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div></div>
+            </div>
         </main>
     </div>
 
     <!-- Editor Modal -->
-    <div id="editor-overlay" class="fixed inset-0 bg-black/60 z-40 hidden items-center justify-center p-4">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-7xl h-[90vh] flex flex-col md:flex-row overflow-hidden">
-            <!-- Form Section -->
-            <div class="w-full md:w-1/3 p-6 space-y-4 overflow-y-auto border-r dark:border-gray-700">
-                <h3 class="text-xl font-bold">文章設定</h3>
-                <div><label for="editor-title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">標題</label><input type="text" id="editor-title" class="form-input mt-1 block w-full" placeholder="文章標題..."></div>
-                <div><label for="editor-date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">發布日期</label><input type="date" id="editor-date" class="form-input mt-1 block w-full"></div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">標籤</label>
-                    <div id="tags-input-container" class="form-input mt-1 flex flex-wrap gap-2 items-center"><input type="text" id="tags-input" class="flex-grow bg-transparent border-none focus:ring-0 p-0" placeholder="輸入標籤後按 Enter..."></div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">封面圖片</label>
-                    <div class="mt-1"><img id="cover-preview" src="" class="w-full aspect-video object-cover rounded bg-gray-200 dark:bg-gray-700 hidden mb-2"><input type="text" id="editor-cover-image-url" class="form-input w-full mb-2" placeholder="或貼上圖片 URL"><label for="cover-upload" class="cursor-pointer bg-blue-500 text-white text-center py-2 px-4 rounded-md hover:bg-blue-600">上傳圖片</label><input type="file" id="cover-upload" class="hidden" accept="image/*"><div id="upload-progress-container" class="w-full bg-gray-200 rounded-full h-2.5 mt-2 hidden"><div id="upload-progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div></div></div>
-                </div>
-            </div>
-            <!-- Editor Section -->
-            <div class="flex-grow flex flex-col h-full w-full md:w-2/3">
-                <div id="editor-container" class="flex-grow relative h-full"></div>
-                <div class="flex-shrink-0 p-4 bg-gray-50 dark:bg-gray-900 border-t dark:border-gray-700 flex justify-between items-center">
-                    <button id="delete-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">刪除</button>
-                    <div class="space-x-4"><button id="cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-4 py-2 rounded-lg hover:bg-gray-300">取消</button><button id="save-btn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">儲存</button></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="editor-overlay" class="fixed inset-0 bg-black/60 z-40 hidden items-center justify-center p-4"><div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-7xl h-[90vh] flex flex-col md:flex-row overflow-hidden"><div class="w-full md:w-1/3 p-6 space-y-4 overflow-y-auto border-r dark:border-gray-700"><h3 class="text-xl font-bold">文章設定</h3><div><label for="editor-title" class="block text-sm font-medium">標題</label><input type="text" id="editor-title" class="form-input mt-1 block w-full dark:bg-gray-700 dark:border-gray-600"></div><div><label for="editor-date" class="block text-sm font-medium">發布日期</label><input type="date" id="editor-date" class="form-input mt-1 block w-full dark:bg-gray-700 dark:border-gray-600"></div><div><label class="block text-sm font-medium">標籤</label><div id="tags-input-container" class="form-input mt-1 flex flex-wrap gap-2 items-center dark:bg-gray-700 dark:border-gray-600"><input type="text" id="tags-input" class="flex-grow bg-transparent border-none focus:ring-0 p-0" placeholder="輸入後按 Enter..."></div></div><div><label class="block text-sm font-medium">封面圖片</label><div class="mt-1"><img id="cover-preview" class="w-full aspect-video object-cover rounded bg-gray-200 dark:bg-gray-700 hidden mb-2"><input type="text" id="editor-cover-image-url" class="form-input w-full mb-2 dark:bg-gray-700 dark:border-gray-600" placeholder="貼上 URL 或上傳"><label for="cover-upload" class="cursor-pointer bg-indigo-500 text-white text-center py-2 px-4 rounded-md hover:bg-indigo-600 w-full inline-block">上傳圖片</label><input type="file" id="cover-upload" class="hidden" accept="image/*"><div id="upload-progress-container" class="w-full bg-gray-200 rounded-full h-2.5 mt-2 hidden"><div id="upload-progress-bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div></div></div></div></div><div class="flex-grow flex flex-col h-full w-full md:w-2/3"><div id="editor-container" class="flex-grow relative h-full"></div><div class="flex-shrink-0 p-4 bg-gray-50 dark:bg-gray-900 border-t dark:border-gray-700 flex justify-between items-center"><button id="delete-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">刪除</button><div class="space-x-4"><button id="cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-4 py-2 rounded-lg hover:bg-gray-300">取消</button><button id="save-btn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">儲存</button></div></div></div></div></div>
     
-    <!-- Other Modals (Confirmation) -->
+    <!-- Confirmation Modal -->
     <div id="confirmation-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center"><div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 w-11/12 max-w-sm text-center"><h3 id="confirmation-title" class="text-xl font-bold mb-4"></h3><p id="confirmation-message" class="text-gray-600 dark:text-gray-300 mb-6"></p><div class="flex justify-center space-x-4"><button id="confirm-cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-6 py-2 rounded-lg hover:bg-gray-300">取消</button><button id="confirm-action-btn" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600">確定</button></div></div></div>
 
     <script type="module">
+        // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, set, get, remove, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
         import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
 
+        // Firebase Config
         const firebaseConfig = { apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y", authDomain: "blog-63ad2.firebaseapp.com", projectId: "blog-63ad2", storageBucket: "blog-63ad2.appspot.com", messagingSenderId: "265914768921", appId: "1:265914768921:web:e4c752780e604d0be69488", databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com", };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const storage = getStorage(app);
 
+        // --- GLOBAL STATE & UI ELEMENTS ---
         let appState = { articles: {}, allTags: new Map(), isEditMode: false, currentArticleId: null, sortedIds: [], isSidebarOpen: localStorage.getItem('sidebarOpen') !== 'false' };
         let editor;
         let searchIndex;
+        let confirmationCallback = null;
 
         const ui = {
             html: document.documentElement,
             sidebar: document.getElementById('sidebar'),
             mainContent: document.getElementById('main-content'),
             sidebarToggle: document.getElementById('sidebar-toggle'),
-            navLinks: document.querySelectorAll('.nav-link'),
             sortOrder: document.getElementById('sort-order'),
             popularTagsContainer: document.getElementById('popular-tags-container'),
+            pageTitle: document.getElementById('page-title'),
             editorOverlay: document.getElementById('editor-overlay'),
+            confirmationModal: document.getElementById('confirmation-modal'),
             editor: {
-                title: document.getElementById('editor-title'),
-                date: document.getElementById('editor-date'),
-                tagsInput: document.getElementById('tags-input'),
-                tagsContainer: document.getElementById('tags-input-container'),
-                coverUrl: document.getElementById('editor-cover-image-url'),
-                coverUpload: document.getElementById('cover-upload'),
-                coverPreview: document.getElementById('cover-preview'),
-                uploadProgressContainer: document.getElementById('upload-progress-container'),
-                uploadProgressBar: document.getElementById('upload-progress-bar'),
-                container: document.getElementById('editor-container'),
-                saveBtn: document.getElementById('save-btn'),
-                cancelBtn: document.getElementById('cancel-btn'),
-                deleteBtn: document.getElementById('delete-btn'),
+                title: document.getElementById('editor-title'), date: document.getElementById('editor-date'),
+                tagsInput: document.getElementById('tags-input'), tagsContainer: document.getElementById('tags-input-container'),
+                coverUrl: document.getElementById('editor-cover-image-url'), coverUpload: document.getElementById('cover-upload'),
+                coverPreview: document.getElementById('cover-preview'), uploadProgressContainer: document.getElementById('upload-progress-container'),
+                uploadProgressBar: document.getElementById('upload-progress-bar'), container: document.getElementById('editor-container'),
+                saveBtn: document.getElementById('save-btn'), cancelBtn: document.getElementById('cancel-btn'), deleteBtn: document.getElementById('delete-btn'),
             },
             adminLogin: document.getElementById('admin-login'),
-            themeToggle: document.getElementById('theme-toggle'),
-            themeIcon: document.getElementById('theme-icon'),
+            themeToggle: document.getElementById('theme-toggle'), themeIcon: document.getElementById('theme-icon'),
         };
 
-        // --- CORE LOGIC ---
+        // --- HELPER FUNCTIONS ---
+        const getHash = str => { let h = 0; for (let i = 0; i < str.length; i++) h = str.charCodeAt(i) + ((h << 5) - h); return h; };
+        const formatDate = dateStr => new Date(dateStr).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+        
+        // --- CORE LOGIC (DATA FETCHING, SORTING, SEARCH) ---
         async function loadData() {
+            switchView('loading-view');
             try {
                 const snap = await get(ref(db, 'blogData/articles'));
                 appState.articles = snap.exists() ? snap.val() : {};
@@ -185,105 +162,89 @@
                 setupSearch();
                 sortArticles();
                 renderPopularTags();
-                renderArticleGrid();
             } catch (error) { console.error("Data loading failed:", error); }
+            switchView('home-view');
         }
 
         function processTags() {
             appState.allTags.clear();
             Object.values(appState.articles).forEach(article => {
-                (Array.isArray(article.tags) ? article.tags : []).forEach(tag => {
-                    appState.allTags.set(tag, (appState.allTags.get(tag) || 0) + 1);
-                });
+                (article.tags || []).forEach(tag => appState.allTags.set(tag, (appState.allTags.get(tag) || 0) + 1));
             });
         }
         
         function sortArticles() {
             const sortMethod = ui.sortOrder.value;
             appState.sortedIds.sort((a, b) => {
-                const artA = appState.articles[a];
-                const artB = appState.articles[b];
+                const artA = appState.articles[a], artB = appState.articles[b];
                 if (sortMethod === 'oldest') return new Date(artA.date) - new Date(artB.date);
                 if (sortMethod === 'views') return (artB.viewCount || 0) - (artA.viewCount || 0);
-                return new Date(artB.date) - new Date(artA.date); // newest (default)
+                return new Date(artB.date) - new Date(artA.date);
             });
             renderArticleGrid();
         }
         
         function setupSearch() {
             searchIndex = lunr(function () {
-                this.ref('id');
-                this.field('title', { boost: 10 }); this.field('tags', { boost: 5 }); this.field('content');
-                this.pipeline.remove(lunr.stemmer); this.searchPipeline.remove(lunr.stemmer); // Better for CJK
-                appState.sortedIds.forEach(id => {
-                    const article = appState.articles[id];
-                    this.add({ id, title: article.title, tags: (article.tags || []).join(' '), content: article.content });
-                });
+                this.ref('id'); this.field('title', { boost: 10 }); this.field('tags', { boost: 5 }); this.field('content');
+                appState.sortedIds.forEach(id => this.add({ id, ...appState.articles[id], tags: (appState.articles[id].tags || []).join(' ') }));
             });
         }
         
-        // --- RENDERING ---
+        // --- RENDERING FUNCTIONS ---
         function renderArticleGrid(ids = appState.sortedIds) {
+            ui.pageTitle.textContent = "最新文章";
             const grid = document.getElementById('article-grid');
             if (ids.length === 0) { grid.innerHTML = `<p class="text-gray-500 col-span-full text-center">找不到文章。</p>`; return; }
             grid.innerHTML = ids.map(id => {
-                const article = appState.articles[id];
-                if (!article) return '';
-                const tagsHtml = (article.tags || []).map(tag => `<span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-white" style="background-color: hsl(${getHash(tag) % 360}, 70%, 40%);">${tag}</span>`).join(' ');
-                return `
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-1 transition-all duration-300 group" data-id="${id}">
-                    <div class="relative"><img src="${article.coverImage || `https://placehold.co/600x400/a78bfa/ffffff?text=${encodeURIComponent(article.title)}`}" alt="${article.title}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"><div class="absolute inset-0 bg-black/20"></div></div>
-                    <div class="p-6 relative">
-                        <h3 class="text-xl font-bold mb-2 truncate group-hover:text-indigo-500 dark:group-hover:text-indigo-400 cursor-pointer">${article.title}</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">${new Date(article.date).toLocaleDateString()}</p>
-                        <div class="flex flex-wrap gap-2">${tagsHtml}</div>
-                        ${appState.isEditMode ? `<button class="card-edit-btn absolute top-4 right-4 bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center" data-id="${id}">✏️</button>` : ''}
-                    </div>
-                </div>`;
+                const article = appState.articles[id]; if (!article) return '';
+                const tagsHtml = (article.tags || []).map(tag => `<span class="text-xs font-semibold py-1 px-2 uppercase rounded-full text-white" style="background-color: hsl(${getHash(tag) % 360}, 60%, 45%);">${tag}</span>`).join(' ');
+                return `<div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-1 transition-all duration-300 group" data-id="${id}"><div class="relative"><img src="${article.coverImage || `https://placehold.co/600x400/a78bfa/ffffff?text=${encodeURIComponent(article.title)}`}" alt="${article.title}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"><div class="absolute inset-0 bg-black/20"></div></div><div class="p-6 relative"><h3 class="text-xl font-bold mb-2 truncate group-hover:text-indigo-500 dark:group-hover:text-indigo-400 cursor-pointer">${article.title}</h3><p class="text-sm text-gray-500 dark:text-gray-400 mb-4">${formatDate(article.date)}</p><div class="flex flex-wrap gap-2">${tagsHtml}</div>${appState.isEditMode ? `<button class="card-edit-btn absolute top-4 right-4 bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-80 hover:opacity-100" data-id="${id}">✏️</button>` : ''}</div></div>`;
             }).join('');
         }
         
         async function renderArticle(id) {
-            const article = appState.articles[id];
-            if (!article) return;
-            // Increment view count
+            const article = appState.articles[id]; if (!article) return;
             if (!sessionStorage.getItem(`viewed_${id}`)) {
                 sessionStorage.setItem(`viewed_${id}`, 'true');
                 const newCount = (article.viewCount || 0) + 1;
                 await update(ref(db, `blogData/articles/${id}`), { viewCount: newCount });
                 article.viewCount = newCount;
             }
-            const contentHtml = article.content ? marked.parse(article.content) : '<p>沒有內容</p>';
+            const contentHtml = article.content ? marked.parse(article.content) : '';
             const view = document.getElementById('article-view');
-            view.innerHTML = `<div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-4 sm:p-8 rounded-lg shadow-lg"><button id="back-to-list-btn" class="text-indigo-600 dark:text-indigo-400 hover:underline mb-6">← 返回列表</button><h1 class="text-3xl md:text-5xl font-bold mb-4">${article.title}</h1><div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-500 dark:text-gray-400 mb-6 pb-6 border-b dark:border-gray-600"><span>📅 ${new Date(article.date).toLocaleDateString()}</span><span>👁️ ${article.viewCount || 1} 次檢視</span></div>${article.coverImage ? `<img src="${article.coverImage}" class="w-full rounded-lg mb-8 aspect-video object-cover">` : ''}<div class="prose dark:prose-invert max-w-none">${contentHtml}</div></div>`;
-            if (window.hljs) view.querySelectorAll('pre code').forEach(hljs.highlightBlock);
+            view.innerHTML = `<div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-4 sm:p-8 rounded-lg shadow-lg"><button id="back-to-list-btn" class="text-indigo-600 dark:text-indigo-400 hover:underline mb-6">← 返回列表</button><h1 class="text-3xl md:text-5xl font-bold mb-4">${article.title}</h1><div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-500 dark:text-gray-400 mb-6 pb-6 border-b dark:border-gray-600"><span>📅 ${formatDate(article.date)}</span><span>👁️ ${article.viewCount || 1} 次檢視</span></div>${article.coverImage ? `<img src="${article.coverImage}" class="w-full rounded-lg mb-8 aspect-video object-cover">` : ''}<div class="prose dark:prose-invert max-w-none">${contentHtml}</div></div>`;
+            if (window.hljs) view.querySelectorAll('pre code').forEach(el => hljs.highlightBlock(el));
             view.querySelector('#back-to-list-btn').addEventListener('click', () => switchView('home-view'));
             switchView('article-view');
         }
 
-        function renderPopularTags() {
-            const sortedTags = [...appState.allTags.entries()].sort((a, b) => b[1] - a[1]).slice(0, 7);
-            ui.popularTagsContainer.innerHTML = sortedTags.map(([tag, count]) => `<button class="tag-filter-btn text-xs font-semibold py-1 px-2 rounded-full text-white" style="background-color: hsl(${getHash(tag) % 360}, 70%, 40%);" data-tag="${tag}">${tag}</button>`).join('');
+        function renderAllTagsPage() {
+            const container = document.getElementById('tags-container');
+            const sortedTags = [...appState.allTags.entries()].sort((a, b) => b[1] - a[1]);
+            container.innerHTML = sortedTags.map(([tag, count]) => `<button class="tag-filter-btn text-white font-semibold py-2 px-4 rounded-full transition-transform hover:scale-105" style="background-color: hsl(${getHash(tag) % 360}, 60%, 45%);" data-tag="${tag}">${tag} <span class="ml-2 text-xs opacity-75">${count}</span></button>`).join('');
         }
 
-        // --- EDITOR & FORM LOGIC ---
+        function renderPopularTags() {
+            const sortedTags = [...appState.allTags.entries()].sort((a, b) => b[1] - a[1]).slice(0, 7);
+            ui.popularTagsContainer.innerHTML = sortedTags.map(([tag]) => `<button class="tag-filter-btn text-xs font-semibold py-1 px-2 rounded-full text-white" style="background-color: hsl(${getHash(tag) % 360}, 60%, 45%);" data-tag="${tag}">${tag}</button>`).join('');
+        }
+
+        // --- EDITOR & DATA MUTATION ---
         function openEditor(id = null) {
-            if (!editor) {
-                editor = new toastui.Editor({ el: ui.editor.container, height: '100%', initialEditType: 'markdown', previewStyle: 'vertical' });
-            }
+            if (!editor) { editor = new toastui.Editor({ el: ui.editor.container, height: '100%', initialEditType: 'markdown', previewStyle: 'vertical' }); }
             resetEditorForm();
             const article = id ? appState.articles[id] : null;
             if (article) {
                 ui.editor.title.value = article.title || '';
-                ui.editor.date.value = article.date ? article.date.split('T')[0] : new Date().toISOString().split('T')[0];
+                ui.editor.date.value = article.date ? article.date.split('T')[0] : '';
                 ui.editor.coverUrl.value = article.coverImage || '';
                 updateCoverPreview(article.coverImage);
-                renderTagsInEditor(article.tags || []);
+                (article.tags || []).forEach(createTagPill);
                 editor.setMarkdown(article.content || '');
-            } else {
-                 ui.editor.date.value = new Date().toISOString().split('T')[0];
-            }
+            } else { ui.editor.date.value = new Date().toISOString().split('T')[0]; }
             ui.editor.saveBtn.dataset.id = id;
+            ui.editor.deleteBtn.dataset.id = id;
             ui.editor.deleteBtn.style.display = id ? 'block' : 'none';
             ui.editorOverlay.style.display = 'flex';
         }
@@ -292,90 +253,65 @@
             const id = ui.editor.saveBtn.dataset.id || `post_${Date.now()}`;
             let coverImageUrl = ui.editor.coverUrl.value.trim();
             const file = ui.editor.coverUpload.files[0];
-
             if (file) {
-                try {
-                    coverImageUrl = await uploadCoverImage(file, id);
-                } catch (error) {
-                    alert('圖片上傳失敗!');
-                    console.error("Upload failed:", error);
-                    return;
-                }
+                try { coverImageUrl = await uploadCoverImage(file, id); } 
+                catch (error) { alert('圖片上傳失敗!'); console.error(error); return; }
             }
-
             const articleData = {
                 title: ui.editor.title.value.trim() || '未命名文章',
-                date: ui.editor.date.value ? new Date(ui.editor.date.value).toISOString() : new Date().toISOString(),
-                tags: getTagsFromEditor(),
-                coverImage: coverImageUrl,
-                content: editor.getMarkdown(),
-                viewCount: appState.articles[id]?.viewCount || 0,
+                date: new Date(ui.editor.date.value).toISOString(),
+                tags: getTagsFromEditor(), coverImage: coverImageUrl, content: editor.getMarkdown(),
+                viewCount: (id && appState.articles[id]?.viewCount) || 0,
             };
-
             await set(ref(db, `blogData/articles/${id}`), articleData);
             ui.editorOverlay.style.display = 'none';
             await loadData();
-            if (appState.currentArticleId === id) renderArticle(id);
+            if (appState.currentArticleId === id) renderArticle(id); else switchView('home-view');
         }
 
+        function deleteArticle(id) {
+            if (!id || !appState.articles[id]) return;
+            showConfirmation(`確定刪除 "${appState.articles[id].title}"?`, '此操作無法復原。', async () => {
+                await remove(ref(db, `blogData/articles/${id}`));
+                // Note: Does not delete cover image from storage to prevent accidental data loss.
+                ui.editorOverlay.style.display = 'none';
+                ui.confirmationModal.style.display = 'none';
+                await loadData();
+                switchView('home-view');
+            });
+        }
+        
         function uploadCoverImage(file, id) {
             return new Promise((resolve, reject) => {
-                const fileRef = storageRef(storage, `covers/${id}_${file.name}`);
+                const fileRef = storageRef(storage, `covers/${id}_${Date.now()}_${file.name}`);
                 const uploadTask = uploadBytesResumable(fileRef, file);
-                
                 ui.editor.uploadProgressContainer.style.display = 'block';
-
                 uploadTask.on('state_changed', 
-                    (snapshot) => {
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        ui.editor.uploadProgressBar.style.width = progress + '%';
-                    }, 
-                    (error) => {
-                        ui.editor.uploadProgressContainer.style.display = 'none';
-                        reject(error);
-                    }, 
+                    (s) => { ui.editor.uploadProgressBar.style.width = ((s.bytesTransferred / s.totalBytes) * 100) + '%'; }, 
+                    (e) => { ui.editor.uploadProgressContainer.style.display = 'none'; reject(e); }, 
                     async () => {
-                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                        ui.editor.uploadProgressContainer.style.display = 'none';
-                        resolve(downloadURL);
-                    }
-                );
+                        const url = await getDownloadURL(uploadTask.snapshot.ref);
+                        ui.editor.uploadProgressContainer.style.display = 'none'; resolve(url);
+                    });
             });
         }
         
         function updateCoverPreview(url) {
-            if (url) {
-                ui.editor.coverPreview.src = url;
-                ui.editor.coverPreview.style.display = 'block';
-            } else {
-                ui.editor.coverPreview.style.display = 'none';
-            }
+            if (url) { ui.editor.coverPreview.src = url; ui.editor.coverPreview.style.display = 'block'; }
+            else { ui.editor.coverPreview.style.display = 'none'; }
         }
         
         function resetEditorForm() {
-            ui.editor.title.value = '';
-            ui.editor.date.value = new Date().toISOString().split('T')[0];
-            ui.editor.coverUrl.value = '';
-            ui.editor.coverUpload.value = '';
-            updateCoverPreview('');
-            renderTagsInEditor([]);
+            ui.editor.title.value = ''; ui.editor.date.value = ''; ui.editor.coverUrl.value = '';
+            ui.editor.coverUpload.value = ''; updateCoverPreview('');
+            ui.editor.tagsContainer.querySelectorAll('.tag-pill').forEach(el => el.remove());
             editor?.setMarkdown('');
         }
 
-        // Tag Input Component
-        function renderTagsInEditor(tags) {
-            // Clear existing tags except for the input
-            ui.editor.tagsContainer.querySelectorAll('.tag-pill').forEach(el => el.remove());
-            tags.forEach(createTagPill);
-        }
-
-        function getTagsFromEditor() {
-            return [...ui.editor.tagsContainer.querySelectorAll('.tag-pill')].map(pill => pill.dataset.tag);
-        }
-
+        // Tag Input
+        function getTagsFromEditor() { return [...ui.editor.tagsContainer.querySelectorAll('.tag-pill')].map(p => p.dataset.tag); }
         function createTagPill(tag) {
-            tag = tag.trim();
-            if (!tag || getTagsFromEditor().includes(tag)) return;
+            tag = tag.trim(); if (!tag || getTagsFromEditor().includes(tag)) return;
             const pill = document.createElement('span');
             pill.className = 'tag-pill flex items-center bg-indigo-100 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 text-sm font-medium pl-2.5 pr-1 py-0.5 rounded-full';
             pill.dataset.tag = tag;
@@ -383,108 +319,83 @@
             ui.editor.tagsContainer.insertBefore(pill, ui.editor.tagsInput);
         }
 
-        // --- UI & FEATURES ---
-        function switchView(viewName) {
-            ['home-view', 'article-view', 'tags-view'].forEach(id => document.getElementById(id).classList.toggle('active', id === viewName));
-            window.scrollTo(0, 0);
+        // --- UI, FEATURES & MODALS ---
+        function switchView(viewName) { ['home-view', 'article-view', 'tags-view', 'loading-view'].forEach(id => document.getElementById(id).classList.toggle('active', id === viewName)); window.scrollTo(0, 0); }
+        function toggleSidebar(forceState) {
+            const shouldBeOpen = typeof forceState === 'boolean' ? forceState : !appState.isSidebarOpen;
+            appState.isSidebarOpen = shouldBeOpen;
+            ui.sidebar.classList.toggle('-translate-x-full', !shouldBeOpen);
+            ui.mainContent.classList.toggle('md:ml-72', shouldBeOpen);
+            localStorage.setItem('sidebarOpen', shouldBeOpen);
         }
-
-        function toggleSidebar(forceOpen) {
-            appState.isSidebarOpen = forceOpen ?? !appState.isSidebarOpen;
-            ui.sidebar.classList.toggle('-translate-x-full', !appState.isSidebarOpen);
-            ui.mainContent.classList.toggle('md:ml-72', appState.isSidebarOpen);
-            localStorage.setItem('sidebarOpen', appState.isSidebarOpen);
-        }
-
         function initTheme() {
-            const isDark = localStorage.getItem('theme') === 'dark' || (localStorage.getItem('theme') === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            const isDark = localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
             ui.html.classList.toggle('dark', isDark);
             ui.themeIcon.textContent = isDark ? '☀️' : '🌙';
         }
-
         function toggleAdminMode(enable) {
             appState.isEditMode = enable;
             document.getElementById('nav-new-article').classList.toggle('hidden', !enable);
             renderArticleGrid();
         }
-        
-        function getHash(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
-            return hash;
+        function showConfirmation(title, message, onConfirm) {
+            document.getElementById('confirmation-title').textContent = title;
+            document.getElementById('confirmation-message').textContent = message;
+            ui.confirmationModal.style.display = 'flex';
+            confirmationCallback = onConfirm;
         }
 
         // --- INITIALIZATION & EVENT LISTENERS ---
         document.addEventListener('DOMContentLoaded', () => {
-            initTheme();
-            toggleSidebar(appState.isSidebarOpen); // Apply initial state
-            loadData();
+            initTheme(); toggleSidebar(appState.isSidebarOpen); loadData();
 
-            // Navigation & Sidebar
+            // Core Navigation
             ui.sidebarToggle.addEventListener('click', () => toggleSidebar());
             ui.sortOrder.addEventListener('change', sortArticles);
-            document.querySelector('#site-title-sidebar').addEventListener('click', () => switchView('home-view'));
-            document.querySelector('#nav-home').addEventListener('click', (e) => { e.preventDefault(); switchView('home-view'); });
-            document.querySelector('#nav-tags').addEventListener('click', (e) => { e.preventDefault(); switchView('tags-view'); renderAllTagsPage(); });
-            document.querySelector('#nav-new-article').addEventListener('click', (e) => { e.preventDefault(); openEditor(); });
+            document.getElementById('site-title-sidebar').addEventListener('click', () => { document.getElementById('search-input').value = ''; sortArticles(); switchView('home-view'); });
+            document.getElementById('nav-home').addEventListener('click', (e) => { e.preventDefault(); sortArticles(); switchView('home-view'); });
+            document.getElementById('nav-tags').addEventListener('click', (e) => { e.preventDefault(); renderAllTagsPage(); switchView('tags-view'); });
+            document.getElementById('nav-new-article').addEventListener('click', (e) => { e.preventDefault(); openEditor(); });
             
-            // Article Interaction
-            document.getElementById('article-grid').addEventListener('click', e => {
-                const card = e.target.closest('[data-id]');
-                if (!card) return;
-                const id = card.dataset.id;
-                if (e.target.closest('.card-edit-btn')) openEditor(id);
-                else renderArticle(id);
+            // Event Delegation for dynamic content
+            document.body.addEventListener('click', e => {
+                const card = e.target.closest('.group[data-id]');
+                if (card) {
+                    if (e.target.closest('.card-edit-btn')) openEditor(card.dataset.id);
+                    else renderArticle(card.dataset.id);
+                }
+                const tagBtn = e.target.closest('.tag-filter-btn');
+                if(tagBtn) {
+                    const tag = tagBtn.dataset.tag;
+                    const ids = appState.sortedIds.filter(id => (appState.articles[id].tags || []).includes(tag));
+                    renderArticleGrid(ids);
+                    ui.pageTitle.textContent = `標籤: #${tag}`;
+                    switchView('home-view');
+                }
             });
-            
-            // Search and Tag Filtering
+
+            // Search
             document.getElementById('search-input').addEventListener('keyup', e => {
                 const query = e.target.value.trim();
                 if (!query) { sortArticles(); return; }
                 const results = searchIndex.search(query + '*').map(r => r.ref);
                 renderArticleGrid(results);
+                ui.pageTitle.textContent = `搜尋結果: "${query}"`;
                 switchView('home-view');
             });
-            
-            ui.popularTagsContainer.addEventListener('click', e => {
-                if(e.target.matches('.tag-filter-btn')) {
-                    const tag = e.target.dataset.tag;
-                    const ids = appState.sortedIds.filter(id => (appState.articles[id].tags || []).includes(tag));
-                    renderArticleGrid(ids);
-                    switchView('home-view');
-                }
-            });
 
-            // Editor Logic
+            // Editor
             ui.editor.saveBtn.addEventListener('click', saveArticle);
             ui.editor.cancelBtn.addEventListener('click', () => ui.editorOverlay.style.display = 'none');
-            ui.editor.deleteBtn.addEventListener('click', e => { /* Deletion logic here */ });
-            ui.editor.coverUpload.addEventListener('change', e => {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        updateCoverPreview(e.target.result);
-                        ui.editor.coverUrl.value = ''; // Clear URL if uploading
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
+            ui.editor.deleteBtn.addEventListener('click', e => deleteArticle(e.currentTarget.dataset.id));
+            ui.editor.coverUpload.addEventListener('change', e => { const f = e.target.files[0]; if (f) { const r = new FileReader(); r.onload = e => updateCoverPreview(e.target.result); r.readAsDataURL(f); } });
             ui.editor.coverUrl.addEventListener('input', e => updateCoverPreview(e.target.value));
-            
-            // Tag Input
-            ui.editor.tagsInput.addEventListener('keydown', e => {
-                if (e.key === 'Enter' || e.key === ',') {
-                    e.preventDefault();
-                    createTagPill(ui.editor.tagsInput.value);
-                    ui.editor.tagsInput.value = '';
-                }
-            });
-            ui.editor.tagsContainer.addEventListener('click', e => {
-                if (e.target.closest('button')) {
-                    e.target.closest('.tag-pill').remove();
-                }
-            });
+            ui.editor.tagsInput.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); createTagPill(ui.editor.tagsInput.value); ui.editor.tagsInput.value = ''; } });
+            ui.editor.tagsContainer.addEventListener('click', e => { if (e.target.closest('button')) e.target.closest('.tag-pill').remove(); });
+
+            // Confirmation Modal
+            document.getElementById('confirm-action-btn').addEventListener('click', () => confirmationCallback && confirmationCallback());
+            document.getElementById('confirm-cancel-btn').addEventListener('click', () => { ui.confirmationModal.style.display = 'none'; confirmationCallback = null; });
 
             // Theme & Admin
             ui.themeToggle.addEventListener('click', () => {
