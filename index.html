@@ -55,7 +55,7 @@
         <aside id="sidebar" class="w-72 bg-white dark:bg-gray-800 h-screen p-6 border-r border-gray-200 dark:border-gray-700 fixed top-0 left-0 z-30 transition-transform duration-300 flex-col flex -translate-x-full md:translate-x-0"></aside>
 
         <main id="main-content" class="w-full transition-all duration-300">
-            <header class="sticky top-0 z-20 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-md flex items-center justify-between p-4 md:p-6 border-b dark:border-gray-700 mb-6">
+            <header class="sticky top-0 z-20 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-md flex items-center justify-between md:justify-end p-4 md:p-6 border-b dark:border-gray-700 mb-6">
                 <h1 id="site-title-mobile" class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 cursor-pointer md:hidden">🌐 KAI STUDIO</h1>
                 <button id="sidebar-toggle" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 ml-auto">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -102,8 +102,7 @@
         let confirmationCallback = null;
 
         const ui = {
-            body: document.body,
-            main: document.getElementById('main-content'), sidebar: document.getElementById('sidebar'), mobileMenu: document.getElementById('mobile-menu'),
+            body: document.body, main: document.getElementById('main-content'), sidebar: document.getElementById('sidebar'), mobileMenu: document.getElementById('mobile-menu'),
             mobileMenuOverlay: document.getElementById('mobile-menu-overlay'), pageTitle: document.getElementById('page-title'),
             editorOverlay: document.getElementById('editor-overlay'), managementOverlay: document.getElementById('management-overlay'),
             confirmationModal: document.getElementById('confirmation-modal'),
@@ -138,14 +137,14 @@
                 
                 setupSearch();
                 renderSidebars();
-                sortArticles(); // This also calls renderArticleGrid
+                sortArticles();
                 
             } catch (error) {
                 console.error("Initialization failed:", error);
                 document.getElementById('home-view').innerHTML = `<p class="text-red-500">無法載入資料，請檢查 Firebase 設定或網路連線。</p>`;
             }
             switchView('home-view');
-            ui.body.style.opacity = 1; // Show body after everything is ready
+            ui.body.style.opacity = 1;
         }
 
         function sortArticles() {
@@ -161,7 +160,7 @@
 
         function setupSearch() {
             if (!Object.keys(appState.articles).length) return;
-            searchIndex = lunr(function () { this.ref('id'); this.field('title', { boost: 10 }); this.field('tags', { boost: 5 }); this.field('content'); appState.sortedIds.forEach(id => this.add({ id, ...appState.articles[id], tags: (appState.articles[id].tags || []).join(' ') })); });
+            searchIndex = lunr(function () { this.ref('id'); this.field('title', { boost: 10 }); this.field('tags', { boost: 5 }); this.field('content'); appState.sortedIds.forEach(id => this.add({ id, ...appState.articles[id], tags: (appState.articles[id]?.tags || []).join(' ') })); });
         }
         
         function renderArticleGrid(ids = appState.sortedIds) {
@@ -178,7 +177,7 @@
         function renderSidebars() { const content = document.getElementById('sidebar-template').innerHTML; ui.sidebar.innerHTML = content; ui.mobileMenu.innerHTML = content; const articleCounts = {}; Object.values(appState.articles).forEach(a => (a.tags || []).forEach(t => articleCounts[t] = (articleCounts[t] || 0) + 1)); const sortedTags = Object.keys(appState.tags).sort((a, b) => (articleCounts[b] || 0) - (articleCounts[a] || 0)).slice(0, 7); const tagsHtml = sortedTags.map(tag => `<button class="tag-filter-btn text-xs font-semibold py-1 px-2 rounded-full text-white" style="${getTagStyle(tag)}" data-tag="${tag}">${tag}</button>`).join(''); document.querySelectorAll('.popular-tags-container').forEach(c => c.innerHTML = tagsHtml); updateThemeUI(); toggleAdminUI(); }
         
         function openEditor(id = null) { if (!editor) { editor = new toastui.Editor({ el: ui.editor.container, height: '100%', initialEditType: 'markdown', previewStyle: 'vertical' }); } resetEditorForm(); const article = id ? appState.articles[id] : null; if (article) { ui.editor.title.value = article.title || ''; ui.editor.date.value = article.date ? article.date.split('T')[0] : ''; ui.editor.coverUrl.value = article.coverImage || ''; updateCoverPreview(article.coverImage); (article.tags || []).forEach(addTagToEditor); editor.setMarkdown(article.content || ''); } else { ui.editor.date.value = new Date().toISOString().split('T')[0]; editor.setMarkdown("> [!NOTE] 這是一個提示框。\n\n一般文字可以用 `==` 來 ==高亮== 顯示。"); } ui.editor.saveBtn.dataset.id = id; ui.editor.deleteBtn.dataset.id = id; ui.editor.deleteBtn.style.display = id ? 'block' : 'none'; ui.editorOverlay.style.display = 'flex'; }
-        async function saveArticle() { const id = ui.editor.saveBtn.dataset.id || `post_${Date.now()}`; let coverImageUrl = ui.editor.coverUrl.value.trim(); const file = ui.editor.coverUpload.files[0]; if (file) { try { coverImageUrl = await uploadCoverImage(file, id); } catch (error) { alert('圖片上傳失敗!'); console.error(error); return; } } const tags = getTagsFromEditor(); for (const tag of tags) { if (!appState.tags[tag]) { await set(ref(db, `blogData/tags/${tag}`), { color: `#${Math.floor(Math.random()*16777215).toString(16)}` }); } } const articleData = { title: ui.editor.title.value.trim() || '未命名文章', date: new Date(ui.editor.date.value).toISOString(), tags: tags, coverImage: coverImageUrl, content: editor.getMarkdown(), viewCount: (id && appState.articles[id]?.viewCount) || 0, }; await set(ref(db, `blogData/articles/${id}`), articleData); ui.editorOverlay.style.display = 'none'; await init(); if (appState.currentArticleId === id) renderArticle(id); else switchView('home-view'); }
+        async function saveArticle() { const id = ui.editor.saveBtn.dataset.id || `post_${Date.now()}`; let coverImageUrl = ui.editor.coverUrl.value.trim(); const file = ui.editor.coverUpload.files[0]; if (file) { try { coverImageUrl = await uploadCoverImage(file, id); } catch (error) { alert('圖片上傳失敗!'); console.error(error); return; } } const tags = getTagsFromEditor(); for (const tag of tags) { if (!appState.tags[tag]) { const randomColor = `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`; await set(ref(db, `blogData/tags/${tag}`), { color: randomColor }); } } const articleData = { title: ui.editor.title.value.trim() || '未命名文章', date: new Date(ui.editor.date.value).toISOString(), tags: tags, coverImage: coverImageUrl, content: editor.getMarkdown(), viewCount: (id && appState.articles[id]?.viewCount) || 0, }; await set(ref(db, `blogData/articles/${id}`), articleData); ui.editorOverlay.style.display = 'none'; await init(); if (appState.currentArticleId === id) renderArticle(id); else switchView('home-view'); }
         function deleteArticle(id) { if (!id || !appState.articles[id]) return; showConfirmation(`確定刪除 "${appState.articles[id].title}"?`, '此操作無法復原。', async () => { await remove(ref(db, `blogData/articles/${id}`)); ui.editorOverlay.style.display = 'none'; ui.confirmationModal.style.display = 'none'; await init(); switchView('home-view'); }); }
         function uploadCoverImage(file, id) { return new Promise((resolve, reject) => { const fileRef = storageRef(storage, `covers/${id}_${Date.now()}_${file.name}`); const uploadTask = uploadBytesResumable(fileRef, file); ui.editor.uploadProgressContainer.style.display = 'block'; uploadTask.on('state_changed', (s) => { ui.editor.uploadProgressBar.style.width = ((s.bytesTransferred / s.totalBytes) * 100) + '%'; }, (e) => reject(e), async () => { resolve(await getDownloadURL(uploadTask.snapshot.ref)); }); }); }
         function updateCoverPreview(url) { ui.editor.coverPreview.style.display = url ? 'block' : 'none'; if (url) ui.editor.coverPreview.src = url; }
@@ -191,7 +190,7 @@
         function openManagementCenter() { renderTagManagementList(); ui.managementOverlay.style.display = 'flex'; }
         function renderTagManagementList() { const tags = Object.entries(appState.tags).sort((a,b)=>a[0].localeCompare(b[0])); ui.tagManagement.list.innerHTML = tags.map(([name, {color}])=>`<div class="flex items-center justify-between p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"><div class="flex items-center"><span class="w-4 h-4 rounded-full mr-3" style="background-color:${color}"></span><span>${name}</span></div><div class="space-x-2"><button data-action="edit-tag" data-tag-name="${name}" class="text-sm text-indigo-500 hover:underline">編輯</button><button data-action="delete-tag" data-tag-name="${name}" class="text-sm text-red-500 hover:underline">刪除</button></div></div>`).join(''); }
         function editTag(name) { const tag = appState.tags[name]; ui.tagManagement.name.value = name; ui.tagManagement.color.value = tag.color; ui.tagManagement.originalName.value = name; }
-        async function saveTag(e) { e.preventDefault(); const newName = ui.tagManagement.name.value.trim(); const oldName = ui.tagManagement.originalName.value; const color = ui.tagManagement.color.value; if(!newName) return; if (oldName && oldName !== newName) await remove(ref(db, `blogData/tags/${oldName}`)); await set(ref(db, `blogData/tags/${newName}`), {color}); ui.tagManagement.form.reset(); ui.tagManagement.originalName.value = ''; await init(); renderTagManagementList(); }
+        async function saveTag(e) { e.preventDefault(); const newName = ui.tagManagement.name.value.trim(); const oldName = ui.tagManagement.originalName.value; const color = ui.tagManagement.color.value; if(!newName) return; if (oldName && oldName !== newName) { await remove(ref(db, `blogData/tags/${oldName}`)); } await set(ref(db, `blogData/tags/${newName}`), {color}); ui.tagManagement.form.reset(); ui.tagManagement.originalName.value = ''; await init(); renderTagManagementList(); }
         async function deleteTag(name) { showConfirmation(`確定刪除標籤 "${name}"?`, '此操作不會從文章中移除該標籤，僅刪除其設定。', async () => { await remove(ref(db, `blogData/tags/${name}`)); ui.confirmationModal.style.display = 'none'; await init(); renderTagManagementList(); }); }
         
         function switchView(viewName) { ['home-view', 'article-view', 'tags-view', 'loading-view'].forEach(id => document.getElementById(id).classList.toggle('active', id === viewName)); window.scrollTo(0, 0); }
@@ -219,7 +218,7 @@
                     toggleMobileMenu(false);
                 };
 
-                if (action === 'go-home' || nav === 'home' || target.id === 'site-title-mobile') { e.preventDefault(); document.querySelector('.search-input').value = ''; handleNav('home'); }
+                if (action === 'go-home' || (nav && nav === 'home') || target.closest('#site-title-mobile')) { e.preventDefault(); document.querySelectorAll('.search-input').forEach(i => i.value = ''); handleNav('home'); }
                 else if (nav) { e.preventDefault(); handleNav(nav); }
                 else if (action === 'toggle-theme') { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); updateThemeUI(); }
                 else if (action === 'admin-login') { const p = prompt('Admin Password:'); if (p === "980621") { appState.isEditMode = true; toggleAdminUI(); renderArticleGrid(); alert('管理模式已啟用！'); } else if (p) { alert('密碼錯誤！'); } }
@@ -228,11 +227,11 @@
                 else if (target.closest('.card-edit-btn')) openEditor(target.closest('[data-id]').dataset.id);
                 else if (card) renderArticle(card.dataset.id);
                 else if (target.closest('.back-to-list-btn')) switchView('home-view');
-                else if (tagBtn) { const tag = tagBtn.dataset.tag; const ids = appState.sortedIds.filter(id => (appState.articles[id].tags || []).includes(tag)); renderArticleGrid(ids); ui.pageTitle.textContent = `標籤: #${tag}`; switchView('home-view'); toggleMobileMenu(false); }
+                else if (tagBtn) { const tag = tagBtn.dataset.tag; const ids = appState.sortedIds.filter(id => (appState.articles[id]?.tags || []).includes(tag)); renderArticleGrid(ids); ui.pageTitle.textContent = `標籤: #${tag}`; switchView('home-view'); toggleMobileMenu(false); }
                 else if (target.id === 'save-btn') saveArticle();
                 else if (target.id === 'cancel-btn') ui.editorOverlay.style.display = 'none';
                 else if (target.id === 'delete-btn') deleteArticle(target.dataset.id);
-                else if (target.id === 'confirm-action-btn') confirmationCallback && confirmationCallback();
+                else if (target.id === 'confirm-action-btn') { if (confirmationCallback) confirmationCallback(); }
                 else if (target.id === 'confirm-cancel-btn') ui.confirmationModal.style.display = 'none';
                 else if (target.closest('.tag-pill button')) target.closest('.tag-pill').remove();
                 else if (target.id === 'management-close-btn') ui.managementOverlay.style.display = 'none';
