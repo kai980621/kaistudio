@@ -16,7 +16,7 @@
     
     <!-- Fonts & Styles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
@@ -55,7 +55,7 @@
         <aside id="sidebar" class="w-72 bg-white dark:bg-gray-800 h-screen p-6 border-r border-gray-200 dark:border-gray-700 fixed top-0 left-0 z-30 transition-transform duration-300 flex-col flex -translate-x-full md:translate-x-0"></aside>
 
         <main id="main-content" class="w-full transition-all duration-300">
-            <header class="sticky top-0 z-20 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-md flex items-center justify-between md:justify-end p-4 md:p-6 border-b dark:border-gray-700 mb-6">
+            <header class="sticky top-0 z-20 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-md flex items-center justify-between p-4 md:p-6 border-b dark:border-gray-700 mb-6">
                 <h1 id="site-title-mobile" class="text-2xl font-bold text-indigo-600 dark:text-indigo-400 cursor-pointer md:hidden">🌐 KAI STUDIO</h1>
                 <button id="sidebar-toggle" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 ml-auto">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -76,6 +76,7 @@
     <div id="editor-overlay" class="fixed inset-0 bg-black/60 z-40 hidden items-center justify-center p-4"><div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-7xl h-[95vh] flex flex-col md:flex-row overflow-hidden"><div class="w-full md:w-1/3 p-6 space-y-4 overflow-y-auto border-b md:border-b-0 md:border-r dark:border-gray-700"><h3 class="text-xl font-bold">文章設定</h3><div><label for="editor-title" class="block text-sm font-medium">標題</label><input type="text" id="editor-title" class="form-input mt-1 block w-full dark:bg-gray-700 dark:border-gray-600"></div><div><label for="editor-date" class="block text-sm font-medium">發布日期</label><input type="date" id="editor-date" class="form-input mt-1 block w-full dark:bg-gray-700 dark:border-gray-600"></div><div class="relative"><label class="block text-sm font-medium">標籤</label><div id="tags-input-container" class="form-input mt-1 flex flex-wrap gap-2 items-center dark:bg-gray-700 dark:border-gray-600"><input type="text" id="tags-input" class="flex-grow bg-transparent border-none focus:ring-0 p-0" placeholder="選擇或建立標籤..."></div><div id="tag-suggestions" class="absolute z-10 w-full bg-white dark:bg-gray-800 border dark:border-gray-600 rounded-md shadow-lg mt-1 hidden max-h-48 overflow-y-auto"></div></div><div><label class="block text-sm font-medium">封面圖片</label><div class="mt-1"><img id="cover-preview" class="w-full aspect-video object-cover rounded bg-gray-200 dark:bg-gray-700 hidden mb-2"><input type="text" id="editor-cover-image-url" class="form-input w-full mb-2 dark:bg-gray-700 dark:border-gray-600" placeholder="貼上 URL 或上傳"><label for="cover-upload" class="cursor-pointer bg-indigo-500 text-white text-center py-2 px-4 rounded-md hover:bg-indigo-600 w-full inline-block">上傳圖片</label><input type="file" id="cover-upload" class="hidden" accept="image/*"><div id="upload-progress-container" class="w-full bg-gray-200 rounded-full h-2.5 mt-2 hidden"><div id="upload-progress-bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div></div></div></div></div><div class="flex-grow flex flex-col h-full w-full md:w-2/3"><div id="editor-container" class="flex-grow relative h-full"></div><div class="flex-shrink-0 p-4 bg-gray-50 dark:bg-gray-900 border-t dark:border-gray-700 flex justify-between items-center"><button id="delete-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">刪除</button><div class="space-x-4"><button id="cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-4 py-2 rounded-lg hover:bg-gray-300">取消</button><button id="save-btn" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">儲存</button></div></div></div></div></div>
     <div id="management-overlay" class="fixed inset-0 bg-black/60 z-40 hidden items-center justify-center p-4"><div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl w-full max-w-2xl h-[80vh] flex flex-col"><div class="flex justify-between items-center p-6 border-b dark:border-gray-700"><h3 class="text-2xl font-bold">管理中心</h3><button id="management-close-btn" class="text-gray-500 hover:text-gray-800 dark:hover:text-gray-200">&times;</button></div><div class="p-6 flex-grow overflow-y-auto space-y-4"><h4 class="text-lg font-semibold">標籤管理</h4><div id="tag-management-list"></div></div><div class="p-6 bg-gray-50 dark:bg-gray-900 border-t dark:border-gray-700"><form id="tag-edit-form" class="flex items-end gap-4"><input type="hidden" id="tag-edit-original-name"><div class="flex-grow"><label for="tag-edit-name" class="block text-sm font-medium">標籤名稱</label><input type="text" id="tag-edit-name" class="form-input mt-1 w-full dark:bg-gray-700" required></div><div><label for="tag-edit-color" class="block text-sm font-medium">顏色</label><input type="color" id="tag-edit-color" class="form-input mt-1 w-16 h-10 p-1 dark:bg-gray-700" value="#4f46e5"></div><button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">儲存</button><button type="button" id="tag-edit-cancel" class="bg-gray-200 px-4 py-2 rounded-md hover:bg-gray-300 dark:bg-gray-600">取消</button></form></div></div></div>
     <div id="confirmation-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center"><div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 w-11/12 max-w-sm text-center"><h3 id="confirmation-title" class="text-xl font-bold mb-4"></h3><p id="confirmation-message" class="text-gray-600 dark:text-gray-300 mb-6"></p><div class="flex justify-center space-x-4"><button id="confirm-cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-6 py-2 rounded-lg hover:bg-gray-300">取消</button><button id="confirm-action-btn" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600">確定</button></div></div></div>
+    <div id="admin-login-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center"><div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 w-11/12 max-w-sm"><h3 class="text-xl font-bold mb-4">管理員登入</h3><form id="admin-login-form"><div class="space-y-4"><input type="password" id="admin-password" class="form-input w-full dark:bg-gray-700" placeholder="請輸入密碼..." required><p id="admin-login-error" class="text-red-500 text-sm hidden">密碼錯誤！</p></div><div class="flex justify-end space-x-4 mt-6"><button type="button" id="admin-login-cancel" class="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:bg-gray-600">取消</button><button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">登入</button></div></form></div></div>
 
     <template id="sidebar-template">
         <div class="text-center mb-6"><h1 data-action="go-home" class="text-3xl font-bold text-indigo-600 dark:text-indigo-400 cursor-pointer">🌐 KAI STUDIO</h1><p class="text-sm text-gray-500 dark:text-gray-400 mt-2">探索音樂的無限可能。</p></div>
@@ -96,7 +97,7 @@
         const db = getDatabase(app);
         const storage = getStorage(app);
 
-        let appState = { articles: {}, tags: {}, isEditMode: false, currentArticleId: null, sortedIds: [], isSidebarOpen: localStorage.getItem('sidebarOpen') !== 'false' };
+        let appState = { articles: {}, tags: {}, isEditMode: false, currentArticleId: null, sortedIds: [], isSidebarOpen: window.innerWidth > 768 && localStorage.getItem('sidebarOpen') !== 'false' };
         let editor;
         let searchIndex;
         let confirmationCallback = null;
@@ -105,7 +106,7 @@
             body: document.body, main: document.getElementById('main-content'), sidebar: document.getElementById('sidebar'), mobileMenu: document.getElementById('mobile-menu'),
             mobileMenuOverlay: document.getElementById('mobile-menu-overlay'), pageTitle: document.getElementById('page-title'),
             editorOverlay: document.getElementById('editor-overlay'), managementOverlay: document.getElementById('management-overlay'),
-            confirmationModal: document.getElementById('confirmation-modal'),
+            confirmationModal: document.getElementById('confirmation-modal'), adminLoginModal: document.getElementById('admin-login-modal'),
             editor: {
                 title: document.getElementById('editor-title'), date: document.getElementById('editor-date'),
                 tagsInput: document.getElementById('tags-input'), tagsContainer: document.getElementById('tags-input-container'),
@@ -122,7 +123,7 @@
         };
 
         const calloutIcons = { NOTE: `<svg fill="currentColor" viewBox="0 0 20 20"><path d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"></path></svg>` };
-        const markedExtensions = { gfm: true, breaks: true, extensions: [{ name: 'highlight', level: 'inline', start(src) { return src.indexOf('=='); }, tokenizer(src) { const match = src.match(/^==([^=]+)==/); if (match) return { type: 'highlight', raw: match[0], text: this.lexer.inlineTokens(match[1]) }; }, renderer(token) { return `<mark>${this.parser.parseInline(token.text)}</mark>`; } }], renderer: (() => { const r = new marked.Renderer(); const o = r.blockquote.bind(r); r.blockquote = q => { const m = q.match(/<p>\s*\[\!(.*?)\]\s?(.*?)<\/p>([\s\S]*)/); if(m){const t=m[1].toUpperCase(),i=m[2],c=m[3],e=calloutIcons[t]||calloutIcons.NOTE; return `<div class="callout callout-${t.toLowerCase()}"><div class="callout-title">${e}${i}</div>${c}</div>`;} return o(q); }; return r; })() };
+        const markedExtensions = { gfm: true, breaks: true, extensions: [{ name: 'highlight', level: 'inline', start(src) { return src.indexOf('=='); }, tokenizer(src) { const match = src.match(/^==([^=]+)==/); if (match) return { type: 'highlight', raw: match[0], text: this.lexer.inlineTokens(match[1]) }; }, renderer(token) { return `<mark>${this.parser.parseInline(token.text)}</mark>`; } }], renderer: (() => { const r = new marked.Renderer(); const o = r.blockquote.bind(r); r.blockquote = q => { const m = q.match(/<p>\s*\[\!(.*?)\]\s?(.*?)<\/p>([\s\S]*)/); if(m){const t=m[1].toUpperCase(),i=m[2],c=m[3],e=calloutIcons[t]||calloutIcons.NOTE; return `<div class="callout callout-note"><div class="callout-title">${e}${i}</div>${c}</div>`;} return o(q); }; return r; })() };
         
         const getTagStyle = tag => { const tagData = appState.tags[tag]; return tagData ? `background-color: ${tagData.color}` : `background-color: hsl(${((str) => { let h = 0; for (let i = 0; i < str.length; i++) h = str.charCodeAt(i) + ((h << 5) - h); return h; })(tag) % 360}, 60%, 45%)`; };
         const formatDate = dateStr => new Date(dateStr).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -135,13 +136,13 @@
                 appState.tags = tagsSnap.exists() ? tagsSnap.val() : {};
                 appState.sortedIds = Object.keys(appState.articles);
                 
-                setupSearch();
                 renderSidebars();
+                setupSearch();
                 sortArticles();
                 
             } catch (error) {
                 console.error("Initialization failed:", error);
-                document.getElementById('home-view').innerHTML = `<p class="text-red-500">無法載入資料，請檢查 Firebase 設定或網路連線。</p>`;
+                document.getElementById('home-view').innerHTML = `<p class="text-red-500 p-4 bg-red-100 dark:bg-red-900 rounded-lg">無法載入資料，請檢查 Firebase 設定或網路連線。</p>`;
             }
             switchView('home-view');
             ui.body.style.opacity = 1;
@@ -151,6 +152,7 @@
             const sortMethod = document.querySelector('#sidebar .sort-order').value;
             appState.sortedIds.sort((a, b) => {
                 const artA = appState.articles[a], artB = appState.articles[b];
+                if (!artA || !artB) return 0;
                 if (sortMethod === 'oldest') return new Date(artA.date) - new Date(artB.date);
                 if (sortMethod === 'views') return (artB.viewCount || 0) - (artA.viewCount || 0);
                 return new Date(artB.date) - new Date(artA.date);
@@ -199,6 +201,7 @@
         function updateThemeUI() { const isDark = document.documentElement.classList.contains('dark'); document.querySelectorAll('.theme-icon').forEach(i => i.textContent = isDark ? '☀️' : '🌙'); }
         function toggleAdminUI() { document.querySelectorAll('[data-nav="new-article"], [data-nav="manage"]').forEach(el => el.classList.toggle('hidden', !appState.isEditMode)); }
         function showConfirmation(title, message, onConfirm) { document.getElementById('confirmation-title').textContent = title; document.getElementById('confirmation-message').textContent = message; ui.confirmationModal.style.display = 'flex'; confirmationCallback = onConfirm; }
+        function showAdminLogin() { ui.adminLoginModal.style.display = 'flex'; document.getElementById('admin-password').focus(); }
 
         document.addEventListener('DOMContentLoaded', () => {
             init();
@@ -221,7 +224,7 @@
                 if (action === 'go-home' || (nav && nav === 'home') || target.closest('#site-title-mobile')) { e.preventDefault(); document.querySelectorAll('.search-input').forEach(i => i.value = ''); handleNav('home'); }
                 else if (nav) { e.preventDefault(); handleNav(nav); }
                 else if (action === 'toggle-theme') { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); updateThemeUI(); }
-                else if (action === 'admin-login') { const p = prompt('Admin Password:'); if (p === "980621") { appState.isEditMode = true; toggleAdminUI(); renderArticleGrid(); alert('管理模式已啟用！'); } else if (p) { alert('密碼錯誤！'); } }
+                else if (action === 'admin-login') { showAdminLogin(); }
                 else if (target.closest('#sidebar-toggle')) { window.innerWidth < 768 ? toggleMobileMenu(true) : toggleDesktopSidebar(); }
                 else if (target.id === 'mobile-menu-overlay') toggleMobileMenu(false);
                 else if (target.closest('.card-edit-btn')) openEditor(target.closest('[data-id]').dataset.id);
@@ -238,6 +241,25 @@
                 else if (action === 'edit-tag') editTag(target.dataset.tagName);
                 else if (action === 'delete-tag') deleteTag(target.dataset.tagName);
                 else if (target.closest('#tag-suggestions > div')) { addTagToEditor(target.dataset.tag); ui.editor.tagsInput.value = ''; ui.editor.tagSuggestions.classList.add('hidden'); }
+                else if (target.id === 'admin-login-cancel') { ui.adminLoginModal.style.display = 'none'; }
+            });
+
+            document.getElementById('admin-login-form').addEventListener('submit', e => {
+                e.preventDefault();
+                const passwordInput = document.getElementById('admin-password');
+                const errorMsg = document.getElementById('admin-login-error');
+                if (passwordInput.value === '980621') {
+                    appState.isEditMode = true;
+                    toggleAdminUI();
+                    renderArticleGrid();
+                    ui.adminLoginModal.style.display = 'none';
+                    passwordInput.value = '';
+                    errorMsg.classList.add('hidden');
+                    alert('管理模式已啟用！');
+                } else {
+                    errorMsg.classList.remove('hidden');
+                    passwordInput.value = '';
+                }
             });
 
             ui.tagManagement.form.addEventListener('submit', saveTag);
