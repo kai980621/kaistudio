@@ -64,7 +64,7 @@
       })();
     </script><div class="flex">
     <!-- Sidebar -->
-    <aside id="sidebar" class="w-72 bg-white dark:bg-gray-800 h-screen p-6 border-r border-gray-200 dark:border-gray-700 fixed top-0 left-0 z-30 transition-transform duration-300 flex-col flex">
+    $1w-72 bg-white dark:bg-gray-800 h-screen p-6 border-r border-gray-200 dark:border-gray-700 fixed top-0 left-0 z-30 transition-transform duration-300 transform -translate-x-full md:translate-x-0 flex-col flex$2>
         <div class="text-center mb-6"><h1 id="site-title-sidebar" class="text-3xl font-bold text-indigo-600 dark:text-indigo-400 cursor-pointer">🌐 KAI STUDIO</h1><p class="text-sm text-gray-500 dark:text-gray-400 mt-2">探索音樂的無限可能。</p></div>
         <div class="relative mb-4"><input type="search" id="search-input" placeholder="搜尋文章..." class="w-full pl-10 pr-4 py-2 rounded-full bg-gray-200 dark:bg-gray-700 border-transparent focus:ring-2 focus:ring-indigo-500 outline-none"><svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div>
         <div class="mb-4"><label for="sort-order" class="text-xs font-bold uppercase text-gray-500 dark:text-gray-400">排序方式</label><select id="sort-order" class="form-select mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-sm"><option value="newest">最新日期</option><option value="oldest">最舊日期</option><option value="views">最多觀看</option></select></div>
@@ -80,6 +80,7 @@
 
         <div class="text-center space-y-4 mt-6"><button id="theme-toggle" class="w-full flex justify-center items-center space-x-2 px-4 py-2 rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"><span id="theme-icon"></span></button><p id="admin-login" class="cursor-pointer text-gray-400 text-xs hover:text-indigo-400">管理員登入</p></div>
     </aside>
+    <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black/50 z-20 hidden md:hidden"></div>
 
     <!-- Main Content -->
     <main id="main-content" class="w-full transition-all duration-300 md:ml-72">
@@ -312,8 +313,16 @@
     function switchView(viewName) { ['home-view', 'article-view', 'tags-view', 'loading-view'].forEach(id => document.getElementById(id).classList.toggle('active', id === viewName)); window.scrollTo(0, 0); }
     function toggleSidebar(forceState) {
         const shouldBeOpen = typeof forceState === 'boolean' ? forceState : !appState.isSidebarOpen;
-        appState.isSidebarOpen = shouldBeOpen; document.getElementById('sidebar').classList.toggle('-translate-x-full', !shouldBeOpen);
+        appState.isSidebarOpen = shouldBeOpen;
+        const sidebarEl = document.getElementById('sidebar');
+        sidebarEl.classList.toggle('-translate-x-full', !shouldBeOpen);
         document.getElementById('main-content').classList.toggle('md:ml-72', shouldBeOpen);
+        const overlay = document.getElementById('mobile-sidebar-overlay');
+        if (overlay) {
+            // 在手機尺寸時顯示遮罩，桌面隱藏
+            if (window.innerWidth < 768) overlay.style.display = shouldBeOpen ? 'block' : 'none';
+            else overlay.style.display = 'none';
+        }
         localStorage.setItem('sidebarOpen', shouldBeOpen);
     }
     function updateTheme(isDark) { localStorage.setItem('theme', isDark ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', isDark); document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙'; }
@@ -324,6 +333,14 @@
     document.addEventListener('DOMContentLoaded', () => {
         updateTheme(document.documentElement.classList.contains('dark'));
         toggleSidebar(appState.isSidebarOpen);
+
+        // mobile overlay: 點擊遮罩關閉側邊欄
+        const mobileOverlay = document.getElementById('mobile-sidebar-overlay');
+        if (mobileOverlay) {
+            mobileOverlay.addEventListener('click', () => toggleSidebar(false));
+            // 初始時在手機尺寸依據狀態顯示或隱藏遮罩
+            mobileOverlay.style.display = (window.innerWidth < 768 && appState.isSidebarOpen) ? 'block' : 'none';
+        }
         loadData();
 
         // Central click handler
