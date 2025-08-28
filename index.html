@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KAI Studio</title>
-    
+
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
 
     <!-- Libraries -->
-    <script src="https://cdn.tailwindcss.com?plugins=typography,forms,container-queries"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=typography,forms"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link id="hl-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
-    <link id="hl-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link id="hl-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" media="all">
+    <link id="hl-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" media="none">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
     <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
@@ -23,255 +23,792 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Noto Sans TC', 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        :root {
+            --bg-color: #f8fafc; --text-color: #0f172a; --card-bg: #ffffff; --border-color: #e6eef6;
+            --primary-color: #0ea5e9; --primary-color-hover: #0284c7; --shadow-color: rgba(0,0,0,0.05);
+            --scrollbar-thumb: #cbd5e1; --scrollbar-track: #f1f5f9;
+        }
+        body.dark-mode {
+            --bg-color: #0b1220; --text-color: #e2e8f0; --card-bg: #0f1724; --border-color: #1f2937;
+            --primary-color: #38bdf8; --primary-color-hover: #0ea5e9; --shadow-color: rgba(0,0,0,0.25);
+            --scrollbar-thumb: #475569; --scrollbar-track: #1e293b;
+        }
+        body {
+            font-family: 'Noto Sans TC', 'Inter', sans-serif;
+            background-color: var(--bg-color); color: var(--text-color);
+            transition: background-color .25s ease, color .25s ease;
+        }
         .view { display: none; }
-        .view.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        :root { --scrollbar-thumb: #a0aec0; --scrollbar-track: #edf2f7; }
-        html.dark { --scrollbar-thumb: #4a5568; --scrollbar-track: #1a202c; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
-        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
-        html.dark ::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
-        mark { background-color: #fef08a; padding: 0.1em 0.2em; border-radius: 3px; }
-        html.dark mark { background-color: #a16207; color: #fefce8; }
-        .form-input, .form-select { @apply focus:ring-2 focus:ring-sky-500 focus:border-sky-500; }
-        .toastui-editor-defaultUI { background: white; color: #1f2937; }
-        html.dark .toastui-editor-defaultUI { background: #1f2937; color: #f3f4f6; }
-        .toastui-editor-md-container { background: inherit; color: inherit; }
-        .editor-pane-hidden { display: none !important; }
-        .editor-tab.active { @apply bg-sky-600 text-white; }
-        .editor-tab { @apply flex-1 text-center py-3 font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 transition-colors; }
-        .nav-link.active-nav { @apply bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300 font-semibold; }
-        #toast-container { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.75rem; }
-        .toast { padding: 1rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); color: white; opacity: 0; transform: translateX(100%); animation: toastInRight 0.5s forwards; display: flex; align-items: center; gap: 0.75rem; }
-        .toast.success { background-color: #22c55e; } .toast.error { background-color: #ef4444; } .toast.info { background-color: #3b82f6; }
-        @keyframes toastInRight { to { opacity: 1; transform: translateX(0); } }
-        /* [FIX 2] Hamburger/Close Icon Transition */
-        #sidebar-toggle .icon-menu, #sidebar-toggle .icon-close { transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; }
-        html.sidebar-open #sidebar-toggle .icon-menu { transform: rotate(90deg); opacity: 0; }
-        html:not(.sidebar-open) #sidebar-toggle .icon-close { transform: rotate(-90deg); opacity: 0; }
+        .view.active { display: block; animation: fadeIn .28s ease; }
+        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+        ::-webkit-scrollbar { width: 8px; height: 8px; } ::-webkit-scrollbar-track { background: var(--scrollbar-track); } ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+        .toastui-editor-defaultUI, .toastui-editor-md-preview, .toastui-editor-ww-container .toastui-editor-contents { background-color: var(--card-bg) !important; color: var(--text-color) !important; }
+        .nav-link.active-nav { background-color: color-mix(in srgb, var(--primary-color) 12%, transparent); color: var(--primary-color); font-weight: 600; }
+        .editor-tab.active { background-color: var(--primary-color); color: white; }
+        /* toast */
+        #toast-container{position:fixed;top:1.5rem;right:1.5rem;z-index:10000;display:flex;flex-direction:column;gap:.75rem}
+        .toast{padding:0.8rem 1.2rem;border-radius:.5rem;box-shadow:0 8px 20px rgba(2,6,23,.08);color:white;opacity:0;transform:translateX(12px);animation:toastIn .28s forwards}
+        .toast.success{background:#22c55e}.toast.error{background:#ef4444}.toast.info{background:#3b82f6}
+        @keyframes toastIn { to { opacity:1; transform:translateX(0) } }
+        /* small responsive */
+        @media (min-width: 768px) { .md\\:ml-72 { margin-left: 18rem; } }
+        /* tag pill fallback */
+        .tag-pill { display:inline-flex; align-items:center; gap:.4rem; padding:.12rem .5rem; border-radius:999px; font-size:.825rem; }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
-    <div id="toast-container"></div>
-    <script> (function() { const theme = localStorage.getItem('theme'); if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); } })(); </script>
+<body class="antialiased">
+<script> (function(){ if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-mode'); })(); </script>
 
 <div class="relative min-h-screen md:flex">
     <div id="sidebar-backdrop" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden"></div>
-    <aside id="sidebar" class="w-72 bg-white dark:bg-gray-800 h-screen p-6 border-r border-gray-200 dark:border-gray-700 fixed top-0 left-0 z-40 transition-transform duration-300 flex-col flex -translate-x-full md:translate-x-0">
-        <div class="text-center mb-6"><h1 id="site-title-sidebar" class="text-3xl font-bold text-sky-600 dark:text-sky-400 cursor-pointer">🌐 KAI STUDIO</h1><p class="text-sm text-gray-500 dark:text-gray-400 mt-2">探索音樂的無限可能。</p></div>
-        <div class="relative mb-4"><input type="search" id="search-input" placeholder="搜尋文章..." class="w-full pl-10 pr-4 py-2 rounded-full bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400 border-transparent outline-none focus:ring-2 focus:ring-sky-500"><svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div>
-        <div class="mb-4"><label for="sort-order" class="text-xs font-bold uppercase text-gray-500 dark:text-gray-400">排序方式</label><select id="sort-order" class="form-select mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-gray-200 shadow-sm text-sm"><option value="newest">最新日期</option><option value="oldest">最舊日期</option><option value="views">最多觀看</option></select></div>
-        <div class="mb-4"><h3 class="text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-2">熱門標籤</h3><div id="popular-tags-container" class="flex flex-wrap gap-2"></div></div>
-        <nav class="flex-grow space-y-2" id="main-nav"><a href="#" data-nav="home" class="nav-link flex items-center space-x-3 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"><span>🏠</span><span>首頁</span></a><a href="#" data-nav="tags" class="nav-link flex items-center space-x-3 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"><span>🏷️</span><span>所有標籤</span></a><a href="#" data-nav="new-article" id="new-article-link" class="nav-link flex items-center space-x-3 py-2 px-4 rounded-lg bg-sky-600 text-white hover:bg-sky-700"><span>➕</span><span>新增文章</span></a><a href="#" data-nav="tag-manager" id="tag-manager-link" class="nav-link flex items-center space-x-3 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"><span>🎨</span><span>管理標籤</span></a></nav>
-        <div id="admin-toolbar" class="mt-6 space-y-2"><button id="export-json" class="w-full text-sm py-2 px-3 rounded-md border border-gray-300 dark:border-gray-600">匯出 JSON</button><label class="w-full text-sm py-2 px-3 rounded-md bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 cursor-pointer text-center">匯入 JSON<input type="file" id="import-json-input" accept="application/json" class="hidden"></label><div class="text-xs text-gray-400 mt-1">管理模式工具列</div></div>
-        <div class="text-center space-y-4 mt-6">
-            <button id="theme-toggle" aria-label="Toggle theme" class="mx-auto w-14 h-8 flex items-center bg-gray-300 dark:bg-gray-600 rounded-full p-1 duration-300 ease-in-out"><div class="bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ease-in-out dark:translate-x-6 flex items-center justify-center text-xs"><span class="dark:hidden">🌙</span><span class="hidden dark:inline">☀️</span></div></button>
-            <p id="copyright-info" class="text-gray-400 text-xs">© 2025 KAI Studio. All rights reserved.</p>
-        </div>
+    <aside id="sidebar" class="w-72 bg-[var(--card-bg)] h-screen p-6 border-r border-[var(--border-color)] fixed top-0 left-0 z-40 transition-transform duration-300 flex-col flex -translate-x-full">
+        <div class="text-center mb-6"><h1 id="site-title-sidebar" class="text-3xl font-bold text-[var(--primary-color)] cursor-pointer">🌐 KAI STUDIO</h1><p class="text-sm text-gray-500 mt-2">探索音樂的無限可能。</p></div>
+        <div class="relative mb-4"><input type="search" id="search-input" placeholder="搜尋文章..." class="w-full pl-10 pr-4 py-2 rounded-full bg-[var(--bg-color)] border border-[var(--border-color)] outline-none focus:ring-2 focus:ring-[var(--primary-color)]"><svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div>
+        <div class="mb-4"><label class="text-xs font-bold uppercase text-gray-500">排序方式</label><select id="sort-order" class="mt-1 block w-full rounded-md border-[var(--border-color)] bg-[var(--card-bg)] shadow-sm text-sm p-2 focus:ring-2 focus:ring-[var(--primary-color)]"><option value="newest">最新日期</option><option value="oldest">最舊日期</option><option value="views">最多觀看</option></select></div>
+        <div class="mb-4"><h3 class="text-xs font-bold uppercase text-gray-500 mb-2">熱門標籤</h3><div id="popular-tags-container" class="flex flex-wrap gap-2"></div></div>
+        <nav id="main-nav" class="flex-grow space-y-2"><a href="#" data-nav="home" class="nav-link flex items-center space-x-3 py-2 px-4 rounded-lg"><span>🏠</span><span>首頁</span></a><a href="#" data-nav="tags" class="nav-link flex items-center space-x-3 py-2 px-4 rounded-lg"><span>🏷️</span><span>所有標籤</span></a><a href="#" data-nav="new-article" id="new-article-link" class="nav-link items-center space-x-3 py-2 px-4 rounded-lg bg-[var(--primary-color)] text-white"><span>➕</span><span>新增文章</span></a><a href="#" data-nav="tag-manager" id="tag-manager-link" class="nav-link items-center space-x-3 py-2 px-4 rounded-lg"><span>🎨</span><span>管理標籤</span></a></nav>
+        <div id="admin-toolbar" class="mt-6 space-y-2"><button id="export-json" class="w-full text-sm py-2 px-3 rounded-md border border-[var(--border-color)]">匯出 JSON</button><label class="w-full text-sm py-2 px-3 rounded-md border border-[var(--border-color)] cursor-pointer text-center">匯入 JSON<input type="file" id="import-json-input" accept="application/json" class="hidden"></label></div>
+        <div class="text-center space-y-4 mt-6"><button id="theme-toggle" class="text-3xl">☀️</button><p id="copyright-info" class="text-gray-400 text-xs cursor-pointer">© 2025 KAI Studio</p></div>
     </aside>
 
-    <main id="main-content" class="flex-1 transition-all duration-300 md:ml-72">
-        <header class="sticky top-0 z-20 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-md flex items-center justify-between p-4 border-b dark:border-gray-700 mb-6">
-            <!-- [FIX 2] Hamburger to X button -->
-            <button id="sidebar-toggle" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 md:hidden relative h-6 w-6">
-                <svg class="icon-menu absolute inset-0 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                <svg class="icon-close absolute inset-0 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    <main id="main-content" class="flex-1 transition-all duration-300 md:ml-0">
+        <header class="sticky top-0 z-50 bg-[var(--bg-color)]/80 backdrop-blur-md flex items-center justify-between p-4 border-b border-[var(--border-color)]">
+            <button id="sidebar-toggle" class="p-2 rounded-md hover:bg-gray-500/10 md:hidden h-10 w-10 grid place-items-center">
+                <svg class="icon-menu w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                <svg class="icon-close w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
             <div class="flex-grow"></div>
         </header>
-        
-        <div class="px-4 sm:px-8 pb-12 max-w-7xl mx-auto">
-            <div id="home-view" class="view active"><h2 id="page-title" class="text-3xl font-bold mb-8 border-l-4 border-sky-500 pl-4">最新文章</h2><div id="article-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div></div>
+
+        <div class="p-4 sm:p-8 pb-12 max-w-7xl mx-auto">
+            <div id="home-view" class="view active"><h2 id="page-title" class="text-3xl font-bold mb-8 border-l-4 border-[var(--primary-color)] pl-4">最新文章</h2><div id="article-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div></div>
             <div id="article-view" class="view"></div>
-            <div id="tags-view" class="view"><h2 class="text-3xl font-bold mb-8 border-l-4 border-sky-500 pl-4">所有標籤</h2><div id="tags-container" class="flex flex-wrap gap-4"></div></div>
-            <div id="tag-manager-view" class="view"><h2 class="text-3xl font-bold mb-6 border-l-4 border-sky-500 pl-4">管理標籤</h2><div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"><h3 class="text-lg font-semibold mb-4">新增標籤</h3><div class="space-y-4 mb-6"><input type="text" id="new-tag-name" placeholder="輸入新標籤名稱..." class="form-input w-full dark:bg-gray-700 dark:border-gray-600"><div class="grid grid-cols-5 md:grid-cols-10 gap-2" id="tag-color-palette"></div><input type="hidden" id="new-tag-color" value="#38bdf8"><button id="add-new-tag-btn" class="w-full bg-sky-600 text-white px-5 py-2 rounded-lg hover:bg-sky-700">新增</button></div><h3 class="text-lg font-semibold mb-4 border-t dark:border-gray-700 pt-4">編輯現有標籤</h3><div id="tag-manager-container" class="space-y-3"></div><button id="save-tag-colors" class="mt-6 bg-sky-600 text-white px-6 py-2 rounded-lg hover:bg-sky-700">儲存顏色變更</button></div></div>
-            <div id="loading-view" class="view flex justify-center items-center h-64"><div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-sky-500"></div></div>
+            <div id="tags-view" class="view"><h2 class="text-3xl font-bold mb-8 border-l-4 border-[var(--primary-color)] pl-4">所有標籤</h2><div id="tags-container" class="flex flex-wrap gap-4"></div></div>
+            <div id="tag-manager-view" class="view"><h2 class="text-3xl font-bold mb-6 border-l-4 border-[var(--primary-color)] pl-4">管理標籤</h2>
+                <div class="bg-[var(--card-bg)] p-6 rounded-lg shadow-md">
+                    <h3 class="text-lg font-semibold mb-4">新增標籤</h3>
+                    <div class="space-y-4 mb-6">
+                        <input type="text" id="new-tag-name" placeholder="輸入新標籤名稱..." class="w-full p-2 rounded-md bg-[var(--bg-color)] border border-[var(--border-color)]">
+                        <div class="grid grid-cols-5 md:grid-cols-10 gap-2" id="tag-color-palette"></div>
+                        <input type="hidden" id="new-tag-color" value="#38bdf8">
+                        <button id="add-new-tag-btn" class="w-full bg-[var(--primary-color)] text-white px-5 py-2 rounded-lg">新增</button>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-4 border-t border-[var(--border-color)] pt-4">編輯現有標籤</h3>
+                    <div id="tag-manager-container" class="space-y-3"></div>
+                    <button id="save-tag-colors" class="mt-6 bg-[var(--primary-color)] text-white px-6 py-2 rounded-lg">儲存顏色變更</button>
+                </div>
+            </div>
+
+            <div id="loading-view" class="view flex justify-center items-center h-64"><div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[var(--primary-color)]"></div></div>
         </div>
     </main>
 </div>
 
-<!-- All modals are the same as before -->
-<div id="editor-overlay" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-0 md:p-4"><div class="bg-white dark:bg-gray-800 rounded-none md:rounded-lg shadow-2xl w-full h-full flex flex-col overflow-hidden"><div id="editor-settings-wrapper" class="w-full md:w-96 md:flex-shrink-0 border-b md:border-b-0 md:border-r dark:border-gray-700"><div class="flex justify-between items-center p-4 border-b dark:border-gray-700 md:border-b-0"><h3 class="text-xl font-bold">文章設定 <span id="dirty-indicator" class="editor-dirty-indicator bg-gray-400"></span></h3><button id="toggle-settings" class="md:hidden text-gray-500 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"><svg id="toggle-settings-icon" class="w-5 h-5 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" /></svg></button></div><div id="editor-settings-content" class="p-4 space-y-4 overflow-y-auto"><div><label for="editor-title" class="block text-sm font-medium mb-1">標題</label><input type="text" id="editor-title" class="form-input block w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"></div><div><label for="editor-date" class="block text-sm font-medium mb-1">發布日期</label><input type="date" id="editor-date" class="form-input block w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"></div><div><label class="block text-sm font-medium mb-1">標籤</label><div id="tags-input-container" class="form-input flex flex-wrap gap-2 items-center dark:bg-gray-700 dark:border-gray-600"><input type="text" id="tags-input" class="flex-grow bg-transparent border-none focus:ring-0 p-0 dark:text-gray-200 dark:placeholder-gray-400" placeholder="輸入後按 Enter..."></div></div><div><label class="block text-sm font-medium mb-1">封面圖片</label><div class="mt-1"><img id="cover-preview" class="w-full aspect-video object-cover rounded bg-gray-200 dark:bg-gray-700 hidden mb-2"><input type="text" id="editor-cover-image-url" class="form-input w-full mb-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" placeholder="貼上 URL 或上傳"><label for="cover-upload" class="cursor-pointer bg-sky-500 text-white text-center py-2 px-4 rounded-md hover:bg-sky-600 w-full inline-block">上傳圖片</label><input type="file" id="cover-upload" class="hidden" accept="image/*"><div id="upload-progress-container" class="w-full bg-gray-200 rounded-full h-2.5 mt-2 hidden"><div id="upload-progress-bar" class="bg-sky-600 h-2.5 rounded-full" style="width: 0%"></div></div></div></div></div></div><div class="flex-grow flex flex-col min-h-0"><div class="md:hidden flex border-b dark:border-gray-700 flex-shrink-0"><button id="editor-tab-edit" class="editor-tab active">編輯</button><button id="editor-tab-preview" class="editor-tab">預覽</button></div><div id="editor-container" class="flex-grow relative min-h-0"></div><div class="flex-shrink-0 p-4 bg-gray-50 dark:bg-gray-900 border-t dark:border-gray-700 flex justify-between items-center"><button id="delete-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">刪除</button><div class="space-x-4"><button id="cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-4 py-2 rounded-lg hover:bg-gray-300">取消</button><button id="save-btn" class="bg-sky-600 text-white px-6 py-2 rounded-lg hover:bg-sky-700">儲存</button></div></div></div></div></div>
-<div id="confirmation-modal" class="fixed inset-0 bg-black/60 z-[60] hidden items-center justify-center"><div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 w-11/12 max-w-sm text-center"><h3 id="confirmation-title" class="text-xl font-bold mb-4"></h3><p id="confirmation-message" class="text-gray-600 dark:text-gray-300 mb-6"></p><div class="flex justify-center space-x-4"><button id="confirm-cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-6 py-2 rounded-lg hover:bg-gray-300">取消</button><button id="confirm-action-btn" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600">確定</button></div></div></div>
+<div id="editor-overlay" class="fixed inset-0 bg-black/70 z-[60] hidden items-center justify-center p-0 md:p-4">
+    <div class="bg-[var(--card-bg)] rounded-none md:rounded-lg shadow-2xl w-full h-full flex flex-col overflow-hidden">
+        <div class="w-full md:w-96 md:flex-shrink-0 border-b md:border-b-0 md:border-r border-[var(--border-color)]">
+            <div class="flex justify-between items-center p-4">
+                <h3 class="text-xl font-bold">文章設定 <span id="editor-dirty-indicator" class="w-2 h-2 rounded-full inline-block ml-2"></span></h3>
+                <button id="toggle-settings" class="md:hidden text-gray-500 p-2"><svg id="toggle-settings-icon" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor"><path d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"/></svg></button>
+            </div>
+            <div id="editor-settings-content" class="p-4 space-y-4 overflow-y-auto">
+                <input type="text" id="editor-title" placeholder="標題" class="w-full p-2 rounded-md bg-[var(--bg-color)] border border-[var(--border-color)]">
+                <input type="date" id="editor-date" class="w-full p-2 rounded-md bg-[var(--bg-color)] border border-[var(--border-color)]">
+                <div id="tags-input-container" class="p-2 rounded-md flex flex-wrap gap-2 items-center bg-[var(--bg-color)] border border-[var(--border-color)]">
+                    <input type="text" id="tags-input" class="flex-grow bg-transparent border-none focus:ring-0 p-0" placeholder="輸入後按 Enter...">
+                </div>
+                <div>
+                    <img id="editor-cover-preview" class="w-full aspect-video object-cover rounded bg-gray-200 hidden mb-2">
+                    <input type="text" id="editor-cover-image-url" class="w-full mb-2 p-2 rounded-md bg-[var(--bg-color)] border border-[var(--border-color)]" placeholder="貼上 URL 或上傳">
+                    <label for="editor-cover-upload" class="cursor-pointer bg-[var(--primary-color)] text-white text-center py-2 px-4 rounded-md w-full inline-block">上傳圖片</label>
+                    <input type="file" id="editor-cover-upload" class="hidden" accept="image/*">
+                </div>
+            </div>
+        </div>
+        <div class="flex-grow flex flex-col min-h-0">
+            <div class="md:hidden flex border-b border-[var(--border-color)]">
+                <button id="editor-tab-edit" class="editor-tab flex-1 py-3 active">編輯</button>
+                <button id="editor-tab-preview" class="editor-tab flex-1 py-3">預覽</button>
+            </div>
+            <div id="editor-container" class="flex-grow relative min-h-0"></div>
+            <div class="p-4 bg-[var(--bg-color)]/50 border-t border-[var(--border-color)] flex justify-between">
+                <button id="editor-delete-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg">刪除</button>
+                <div>
+                    <button id="editor-cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-4 py-2 rounded-lg mr-2">取消</button>
+                    <button id="editor-save-btn" class="bg-[var(--primary-color)] text-white px-6 py-2 rounded-lg">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="confirmation-modal" class="fixed inset-0 bg-black/60 z-[70] hidden items-center justify-center">
+    <div class="bg-[var(--card-bg)] rounded-lg shadow-2xl p-6 w-11/12 max-w-sm text-center">
+        <h3 id="confirmation-title" class="text-xl font-bold mb-4"></h3>
+        <p id="confirmation-message" class="text-gray-500 mb-6"></p>
+        <div><button id="confirm-cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-6 py-2 rounded-lg mr-4">取消</button><button id="confirm-action-btn" class="bg-red-500 text-white px-6 py-2 rounded-lg">確定</button></div>
+    </div>
+</div>
+
+<div id="toast-container"></div>
 
 <script type="module">
-    // Firebase Config (unchanged)
+    // Firebase 模組引入（請確認你的網域與設定允許）
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import { getDatabase, ref, set, get, remove, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
     import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
-    const firebaseConfig = { apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y", authDomain: "blog-63ad2.firebaseapp.com", projectId: "blog-63ad2", storageBucket: "blog-63ad2.appspot.com", messagingSenderId: "265914768921", appId: "1:265914768921:web:e4c752780e604d0be69488", databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com", };
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y",
+        authDomain: "blog-63ad2.firebaseapp.com",
+        projectId: "blog-63ad2",
+        storageBucket: "blog-63ad2.appspot.com",
+        messagingSenderId: "265914768921",
+        appId: "1:265914768921:web:e4c752780e604d0be69488",
+        databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com",
+    };
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const storage = getStorage(app);
 
-    // Global state and constants (unchanged)
+    // APP state & UI
     let appState = { articles: {}, allTags: new Map(), tagColors: {}, isEditMode: false, currentArticleId: null, sortedIds: [] };
-    let editor; let searchIndex; let confirmationCallback = null; let editorIsDirty = false;
-    const TAG_PALETTE = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#38bdf8', '#818cf8', '#c084fc', '#f472b6', '#737373', '#0d9488'];
+    let editor = null;
+    let searchIndex = null;
+    let confirmationCallback = null;
+    let searchDebounceTimer = null;
+    let editorIsDirty = false;
 
-    // UI elements mapping (simplified for clarity, unchanged in code)
-    const ui = { /* ... */ };
+    // 改為較不刺眼的標籤色盤（避免亮黃+白字）
+    const TAG_PALETTE = ['#ef4444','#fb8c00','#d97706','#f59e0b','#10b981','#38bdf8','#60a5fa','#7dd3fc','#64748b','#0ea5e9'];
 
-    // Helper functions (unchanged)
-    const getTextColorForBg = hex => { const [r, g, b] = hex.slice(1).match(/.{2}/g).map(c => parseInt(c, 16)); return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? '#1f2937' : '#ffffff'; };
-    const getTagColor = tag => appState.tagColors[tag] || TAG_PALETTE[[...tag].reduce((a, c) => c.charCodeAt(0) + a, 0) % TAG_PALETTE.length];
-    const showToast = (message, type = 'info') => { const c = document.getElementById('toast-container'), t = document.createElement('div'); t.className = `toast ${type}`; t.textContent = message; c.appendChild(t); setTimeout(() => t.remove(), 4000); };
-    const formatDate = dateStr => new Date(dateStr).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
-    
-    // Core Functions (with fixes)
+    // 幫助函式：根據背景色選擇適合的文字顏色（黑或白）
+    const getTextColorForBg = (hex) => {
+        if(!hex || hex[0] !== '#') return '#ffffff';
+        const rgb = hex.slice(1).match(/.{2}/g).map(c => parseInt(c,16));
+        const [r,g,b] = rgb;
+        // 計算感知亮度 (YIQ)
+        const yiq = (r*299 + g*587 + b*114) / 1000;
+        return yiq >= 150 ? '#0f1724' : '#ffffff';
+    };
+
+    const getTagColor = (tag) => {
+        if (appState.tagColors && appState.tagColors[tag]) return appState.tagColors[tag];
+        // fallback: hash tag to palette index
+        const sum = Array.from(tag).reduce((a,c)=>a + c.charCodeAt(0), 0);
+        return TAG_PALETTE[sum % TAG_PALETTE.length];
+    };
+
+    const showToast = (message, type='info') => {
+        const c = document.getElementById('toast-container');
+        const t = document.createElement('div');
+        t.className = 'toast ' + type;
+        t.textContent = message;
+        c.appendChild(t);
+        setTimeout(()=> { t.style.opacity = '0'; try{ t.remove(); }catch(e){} }, 4000);
+    };
+
+    const formatDate = d => {
+        if(!d) return '';
+        return new Date(d).toLocaleDateString('zh-TW', { year:'numeric', month:'short', day:'numeric' });
+    };
+
+    // UI 缓存 (會在 DOMContentLoaded 做映射)
+    const ui = {};
+
+    // Data load / process
     async function loadData() {
         switchView('loading-view');
         try {
-            const [articlesSnap, tagColorsSnap] = await Promise.all([ get(ref(db, 'blogData/articles')), get(ref(db, 'blogData/tagColors')) ]);
+            const [articlesSnap, tagColorsSnap] = await Promise.all([
+                get(ref(db, `blogData/articles`)),
+                get(ref(db, `blogData/tagColors`))
+            ]);
             appState.articles = articlesSnap.exists() ? articlesSnap.val() : {};
             appState.tagColors = tagColorsSnap.exists() ? tagColorsSnap.val() : {};
-            processData();
+            appState.sortedIds = Object.keys(appState.articles || {});
+            processTags();
+            setupSearch();
+            sortArticles();
+            renderPopularTags();
             switchView('home-view');
-        } catch (error) { console.error('Data loading failed:', error); document.getElementById('article-grid').innerHTML = `<p class="text-red-500 col-span-full text-center">無法載入文章。</p>`; switchView('home-view'); }
+        } catch(e) {
+            console.error("Data loading failed:", e);
+            switchView('home-view');
+            showToast('載入資料失敗，請檢查網路或 Firebase 設定','error');
+        }
     }
-    
-    function processData() {
-        appState.sortedIds = Object.keys(appState.articles);
-        processTags();
-        setupSearch();
-        sortArticles();
-        renderPopularTags();
-    }
-    
-    // [FIX 3] Delegated event handlers for article grid
-    function setupArticleGridListeners() {
-        const grid = document.getElementById('article-grid');
-        grid.addEventListener('click', (e) => {
-            const target = e.target;
-            const articleCard = target.closest('.article-card');
-            if (!articleCard) return;
 
-            const articleId = articleCard.dataset.id;
-            
-            if (target.closest('.card-edit-btn')) {
-                openEditor(articleId);
-            } else if (target.closest('.card-copy-btn')) {
-                copyArticle(articleId);
-            } else if (target.closest('.card-delete-btn')) {
-                deleteArticle(articleId);
-            } else if (target.closest('.card-link')) {
-                renderArticle(articleId);
-            }
-        });
+    function processTags(){
+        appState.allTags.clear();
+        Object.values(appState.articles || {}).forEach(a => (a.tags || []).forEach(t => {
+            appState.allTags.set(t, (appState.allTags.get(t) || 0) + 1);
+        }));
     }
-    
+
+    function sortArticles(){
+        const sort = ui.sortOrder.value;
+        appState.sortedIds.sort((a,b)=>{
+            const artA = appState.articles[a] || {};
+            const artB = appState.articles[b] || {};
+            if(sort === 'oldest') return new Date(artA.date || 0) - new Date(artB.date || 0);
+            if(sort === 'views') return (artB.viewCount||0) - (artA.viewCount||0);
+            return new Date(artB.date || 0) - new Date(artA.date || 0);
+        });
+        ui.pageTitle.textContent = { newest:'最新文章', oldest:'最舊文章', views:'最多觀看' }[sort];
+        renderArticleGrid();
+    }
+
+    function setupSearch(){
+        try {
+            searchIndex = lunr(function(){
+                this.ref('id');
+                this.field('title', {boost: 10});
+                this.field('content');
+                this.field('tags', {boost: 5});
+                Object.values(appState.articles || {}).forEach(doc => {
+                    this.add(Object.assign({}, doc, { tags: (doc.tags || []).join(' ') }));
+                });
+            });
+        } catch(e) {
+            console.warn('Search index 建立失敗', e);
+            searchIndex = null;
+        }
+    }
+
     function renderArticleGrid(ids = appState.sortedIds) {
-        const grid = document.getElementById('article-grid');
-        grid.innerHTML = ids.length === 0 ? `<p class="text-gray-500 col-span-full text-center">找不到文章。</p>` : ids.map(id => {
-            const article = appState.articles[id]; if (!article) return '';
-            const tagsHtml = (article.tags || []).map(tag => `<span class="text-xs font-semibold py-1 px-2 uppercase rounded-full" style="background-color:${getTagColor(tag)}; color:${getTextColorForBg(getTagColor(tag))};">${tag}</span>`).join(' ');
-            const cover = article.coverImage || `https://placehold.co/600x400/0ea5e9/ffffff?text=${encodeURIComponent(article.title)}`;
-            // [FIX 3] Added `card-link` class to title and image link for specific targeting
-            return `<div class="article-card bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transform hover:-translate-y-2 transition-all duration-300 group flex flex-col" data-id="${id}">
-                <a href="#" class="card-link block relative">
-                    <img src="${cover}" alt="${article.title}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
-                </a>
-                <div class="p-6 relative flex-grow flex flex-col">
-                    <div class="min-h-[64px] mb-2">
-                        <h3 class="text-lg font-bold">
-                           <a href="#" class="card-link group-hover:text-sky-500 dark:group-hover:text-sky-400">${article.title}</a>
-                        </h3>
+        const grid = ui.articleGrid;
+        if(!ids || ids.length === 0) {
+            grid.innerHTML = `<p>找不到文章</p>`;
+            return;
+        }
+        const html = ids.map(id=>{
+            const article = appState.articles[id];
+            if(!article) return '';
+            const tagsHtml = (article.tags || []).map(t => {
+                const color = getTagColor(t);
+                const textColor = getTextColorForBg(color);
+                return `<span class="tag-pill" style="background:${color};color:${textColor}">${escapeHtml(t)}</span>`;
+            }).join(' ');
+            const cover = article.coverImage || `https://placehold.co/600x400/0ea5e9/ffffff?text=${encodeURIComponent(article.title||'')}`;
+            return `
+            <div class="article-card bg-[var(--card-bg)] shadow-lg rounded-xl overflow-hidden group" data-id="${escapeHtml(id)}">
+                <div class="relative">
+                    <img src="${escapeAttr(cover)}" class="w-full h-48 object-cover" alt="${escapeAttr(article.title||'cover')}">
+                    <a href="#" data-action="view" class="absolute inset-0" aria-label="查看文章"></a>
+                    <div class="admin-controls absolute top-2 right-2 flex flex-col gap-2 z-10">
+                        <button data-action="edit" class="bg-sky-500 text-white w-9 h-9 rounded-full flex items-center justify-center shadow-lg">✏️</button>
+                        <button data-action="copy" class="bg-green-500 text-white w-9 h-9 rounded-full flex items-center justify-center shadow-lg">📄</button>
+                        <button data-action="delete" class="bg-red-500 text-white w-9 h-9 rounded-full flex items-center justify-center shadow-lg">🗑️</button>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">${formatDate(article.date)}</p>
-                    <div class="flex flex-wrap gap-2 mt-auto">${tagsHtml}</div>
                 </div>
-                ${appState.isEditMode ? `<div class="absolute top-2 right-2 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button class="card-edit-btn bg-sky-500 text-white rounded-full p-2.5 shadow-lg" title="編輯">✏️</button>
-                    <button class="card-copy-btn bg-green-500 text-white rounded-full p-2.5 shadow-lg" title="複製">📄</button>
-                    <button class="card-delete-btn bg-red-500 text-white rounded-full p-2.5 shadow-lg" title="刪除">🗑️</button>
-                </div>` : ''}
-            </div>`;
+                <div class="p-6">
+                    <h3 class="font-bold text-lg"><a href="#" data-action="view">${escapeHtml(article.title||'未命名')}</a></h3>
+                    <p class="text-sm text-gray-500 mt-2">${formatDate(article.date)}</p>
+                    <div class="flex flex-wrap gap-2 mt-4">${tagsHtml}</div>
+                </div>
+            </div>
+            `;
+        }).join('');
+        grid.innerHTML = html;
+    }
+
+    async function handleArticleAction(action, id){
+        if(!action || !id) return;
+        switch(action){
+            case 'view': await renderArticle(id); break;
+            case 'edit': openEditor(id); break;
+            case 'copy': await copyArticle(id); break;
+            case 'delete': deleteArticle(id); break;
+        }
+    }
+
+    async function renderArticle(id){
+        appState.currentArticleId = id;
+        const article = appState.articles[id];
+        if(!article) return;
+        if(!sessionStorage.getItem(`viewed${id}`)){
+            const newCount = (article.viewCount || 0) + 1;
+            try {
+                await update(ref(db, `blogData/articles/${id}`), { viewCount: newCount });
+                article.viewCount = newCount;
+                sessionStorage.setItem(`viewed${id}`, 'true');
+            } catch(e) { console.warn('更新觀看次數失敗', e); }
+        }
+        const content = marked.parse(article.content || '');
+        ui.articleView.innerHTML = `
+            <div class="max-w-4xl mx-auto bg-[var(--card-bg)] p-8 rounded-lg shadow-lg">
+                <button id="back-to-list" class="text-[var(--primary-color)] mb-4">← 返回</button>
+                <h1 class="text-4xl font-bold">${escapeHtml(article.title)}</h1>
+                <p class="text-gray-500 my-4">📅 ${formatDate(article.date)} | 👁️ ${article.viewCount||1} 次檢視</p>
+                <div class="prose dark:prose-invert max-w-none prose-p:text-[var(--text-color)] prose-a:text-[var(--primary-color)]">${content}</div>
+            </div>
+        `;
+        // highlight code
+        ui.articleView.querySelectorAll('pre code').forEach(el => {
+            try { hljs.highlightElement(el); } catch(e){}
+        });
+        switchView('article-view');
+        const back = document.getElementById('back-to-list');
+        if(back) back.addEventListener('click', (e) => { e.preventDefault(); switchView('home-view'); });
+    }
+
+    function switchView(viewName){
+        ['home-view','article-view','tags-view','tag-manager-view','loading-view'].forEach(v=>{
+            ui[v].classList.toggle('active', v === viewName);
+        });
+        window.scrollTo(0,0);
+        const activeNav = { 'home-view':'home','article-view':'home','tags-view':'tags','tag-manager-view':'tag-manager' }[viewName];
+        ui.mainNav.querySelectorAll('.nav-link').forEach(n => n.classList.toggle('active-nav', n.dataset.nav === activeNav));
+    }
+
+    function toggleSidebar(force){
+        const isOpen = typeof force === 'boolean' ? force : !document.documentElement.classList.contains('sidebar-open');
+        document.documentElement.classList.toggle('sidebar-open', isOpen);
+        ui.sidebar.classList.toggle('-translate-x-full', !isOpen);
+        if(window.innerWidth < 768){
+            ui.sidebarBackdrop.classList.toggle('hidden', !isOpen);
+            document.body.classList.toggle('overflow-hidden', isOpen);
+        } else {
+            ui.mainContent.classList.toggle('md:ml-72', isOpen);
+        }
+    }
+
+    function toggleAdminMode(){
+        appState.isEditMode = !appState.isEditMode;
+        document.body.classList.toggle('edit-mode', appState.isEditMode);
+        showToast(appState.isEditMode ? "管理模式已啟用" : "已退出管理模式", 'info');
+        renderArticleGrid();
+    }
+
+    function renderPopularTags(){
+        const sortedTags = [...appState.allTags.entries()].sort((a,b)=>b[1]-a[1]).slice(0,5);
+        ui.popularTagsContainer.innerHTML = sortedTags.map(([t])=>{
+            const color = getTagColor(t);
+            const text = getTextColorForBg(color);
+            return `<button data-tag="${escapeAttr(t)}" class="tag-filter-btn text-xs font-semibold py-1 px-2 rounded-full" style="background:${color};color:${text}">${escapeHtml(t)}</button>`;
         }).join('');
     }
 
-    function toggleAdminMode(enable) {
-        appState.isEditMode = enable;
-        document.getElementById('new-article-link').style.display = enable ? 'flex' : 'none';
-        document.getElementById('tag-manager-link').style.display = enable ? 'flex' : 'none';
-        document.getElementById('admin-toolbar').style.display = enable ? 'block' : 'none';
-        renderArticleGrid(); // Re-render to show/hide buttons
+    function renderAllTagsPage(){
+        const sortedTags = [...appState.allTags.entries()].sort((a,b)=>b[1]-a[1]);
+        ui.tagsContainer.innerHTML = sortedTags.map(([t,c])=>{
+            const color = getTagColor(t);
+            const text = getTextColorForBg(color);
+            return `<button data-tag="${escapeAttr(t)}" class="tag-filter-btn font-semibold py-2 px-4 rounded-full" style="background:${color};color:${text}">${escapeHtml(t)} <span class="opacity-75">${c}</span></button>`;
+        }).join('');
     }
-    
-    function toggleSidebar() {
-        document.documentElement.classList.toggle('sidebar-open');
-        const isOpen = document.documentElement.classList.contains('sidebar-open');
-        document.getElementById('sidebar').classList.toggle('-translate-x-full', !isOpen);
-        document.getElementById('sidebar-backdrop').classList.toggle('hidden', !isOpen);
-        if (window.innerWidth < 768) {
-            document.body.classList.toggle('overflow-hidden', isOpen);
+
+    function renderTagManager(){
+        const merged = Array.from(new Set([ ...Object.keys(appState.tagColors || {}), ...appState.allTags.keys() ]));
+        merged.sort();
+        ui.tagManagerContainer.innerHTML = merged.map(t=>{
+            const color = getTagColor(t);
+            return `<div class="flex items-center gap-3 p-2 rounded-md"><input type="color" value="${escapeAttr(color)}" data-tag="${escapeAttr(t)}" class="h-8 w-10 rounded"><span class="flex-grow">${escapeHtml(t)}</span><span class="text-xs text-gray-400">${appState.allTags.get(t)||0}篇</span><button data-action="delete-tag" data-tag="${escapeAttr(t)}" class="text-red-500 text-xl">&times;</button></div>`;
+        }).join('');
+    }
+
+    async function addNewTag(){
+        const name = ui.newTagName.value.trim();
+        const color = ui.newTagColor.value;
+        if(!name){ showToast('請輸入標籤名稱','error'); return; }
+        appState.tagColors[name] = color;
+        await update(ref(db, 'blogData/tagColors'), appState.tagColors);
+        ui.newTagName.value = '';
+        renderTagManager();
+        showToast('標籤已新增','success');
+    }
+
+    async function deleteTag(tag){
+        showConfirmation(`確定刪除標籤 "${tag}"?`, '這將從所有文章中移除此標籤。', async ()=>{
+            const updates = {};
+            Object.entries(appState.articles || {}).forEach(([id, art])=>{
+                if(art.tags?.includes(tag)){
+                    updates[`blogData/articles/${id}/tags`] = art.tags.filter(t=>t !== tag);
+                }
+            });
+            updates[`blogData/tagColors/${tag}`] = null;
+            try {
+                await update(ref(db), updates);
+                ui.confirmationModal.style.display = 'none';
+                await loadData();
+                renderTagManager();
+                showToast('標籤已刪除','info');
+            } catch(e) {
+                showToast('刪除失敗','error');
+            }
+        });
+    }
+
+    async function saveTagColors(){
+        const newColors = {};
+        ui.tagManagerContainer.querySelectorAll('input[type="color"]').forEach(i => {
+            newColors[i.dataset.tag] = i.value;
+        });
+        try {
+            await update(ref(db, 'blogData/tagColors'), newColors);
+            appState.tagColors = newColors;
+            showToast('顏色已儲存','success');
+            await loadData();
+        } catch(e) {
+            showToast('儲存顏色失敗','error');
         }
     }
 
-    // --- Main Initialization ---
-    document.addEventListener('DOMContentLoaded', () => {
-        // [FIX 1] Isolated, reliable theme toggle listener
-        document.getElementById('theme-toggle').addEventListener('click', () => {
-            const isDark = !document.documentElement.classList.contains('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            document.documentElement.classList.toggle('dark', isDark);
-            document.getElementById('hl-light').disabled = isDark;
-            document.getElementById('hl-dark').disabled = !isDark;
-            if (editor) editor.setTheme(isDark ? 'dark' : 'light');
+    function openEditor(id=null){
+        // destroy old editor
+        if(editor && typeof editor.destroy === 'function') { editor.destroy(); editor = null; }
+        editor = new toastui.Editor({
+            el: ui.editorContainer,
+            height: '100%',
+            initialEditType: 'markdown',
+            previewStyle: window.innerWidth < 768 ? 'tab' : 'vertical',
+            theme: document.body.classList.contains('dark-mode') ? 'dark' : 'light'
         });
-
-        // Other dedicated listeners
-        document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
-        document.getElementById('sidebar-backdrop').addEventListener('click', () => toggleSidebar(false));
-        document.getElementById('site-title-sidebar').addEventListener('click', () => {
-             document.getElementById('search-input').value = ''; sortArticles(); switchView('home-view'); if (window.innerWidth < 768) toggleSidebar();
-        });
-        document.getElementById('main-nav').addEventListener('click', e => {
-            const navLink = e.target.closest('.nav-link');
-            if (!navLink) return;
-            e.preventDefault();
-            const nav = navLink.dataset.nav;
-            if (nav === 'home') { sortArticles(); switchView('home-view'); } 
-            else if (nav === 'tags') { renderAllTagsPage(); switchView('tags-view'); } 
-            else if (nav === 'new-article') openEditor(); 
-            else if (nav === 'tag-manager') { renderTagManager(); switchView('tag-manager-view'); }
-            if (window.innerWidth < 768) toggleSidebar();
-        });
-        
-        setupArticleGridListeners();
-        initTagColorPalette();
-
-        if (window.innerWidth >= 768) {
-             document.documentElement.classList.add('sidebar-open');
+        editor.on('change', () => setEditorDirty(true));
+        resetEditorForm();
+        const article = id ? appState.articles[id] : null;
+        if(article){
+            ui.editorTitle.value = article.title || '';
+            ui.editorDate.value = article.date ? article.date.split('T')[0] : '';
+            ui.editorCoverImageUrl.value = article.coverImage || '';
+            updateCoverPreview(article.coverImage || '');
+            (article.tags || []).forEach(createTagPill);
+            editor.setMarkdown(article.content || '');
+            ui.editorDeleteBtn.style.display = 'inline-block';
         } else {
-             toggleAdminMode(false); // Default hide admin buttons on mobile
+            ui.editorDate.value = new Date().toISOString().split('T')[0];
+            ui.editorDeleteBtn.style.display = 'none';
+        }
+        appState.currentArticleId = id;
+        ui.editorOverlay.style.display = 'flex';
+    }
+
+    function closeEditor(){
+        if(editorIsDirty && !confirm('有未儲存的變更，確定離開?')) return;
+        ui.editorOverlay.style.display = 'none';
+        if(editor && typeof editor.destroy === 'function') { editor.destroy(); editor = null; }
+        setEditorDirty(false);
+    }
+
+    async function saveArticle(){
+        const id = appState.currentArticleId || `post_${Date.now()}`;
+        let coverImage = ui.editorCoverImageUrl.value.trim();
+        const file = ui.editorCoverUpload.files[0];
+        try {
+            if(file){
+                coverImage = await uploadCoverImage(file, id);
+            }
+            const articleData = Object.assign({}, appState.articles[id] || {}, {
+                id,
+                title: ui.editorTitle.value.trim() || '未命名',
+                date: new Date(ui.editorDate.value).toISOString(),
+                tags: getTagsFromEditor(),
+                coverImage,
+                content: editor ? editor.getMarkdown() : '',
+                viewCount: (id && appState.articles[id]) ? (appState.articles[id].viewCount || 0) : 0
+            });
+            await set(ref(db, `blogData/articles/${id}`), articleData);
+            showToast('文章已儲存','success');
+            closeEditor();
+            await loadData();
+        } catch(e) {
+            console.error(e);
+            showToast('儲存失敗','error');
+        }
+    }
+
+    async function copyArticle(id){
+        const original = appState.articles[id];
+        if(!original) return;
+        const newId = `post_${Date.now()}`;
+        try {
+            await set(ref(db, `blogData/articles/${newId}`), Object.assign({}, original, { id: newId, title: (original.title||'') + ' (複製)', date: new Date().toISOString(), viewCount: 0 }));
+            await loadData();
+            openEditor(newId);
+        } catch(e){ showToast('複製失敗','error'); }
+    }
+
+    function deleteArticle(id){
+        showConfirmation(`確定刪除 "${(appState.articles[id] && appState.articles[id].title) || ''}"?`, '此操作無法復原。', async ()=>{
+            try {
+                await remove(ref(db, `blogData/articles/${id}`));
+                showToast('文章已刪除','info');
+                closeEditor();
+                await loadData();
+                switchView('home-view');
+            } catch(e) {
+                showToast('刪除失敗','error');
+            }
+        });
+    }
+
+    function uploadCoverImage(file, id){
+        return new Promise((resolve, reject) => {
+            const fileRef = storageRef(storage, `covers/${id}_${file.name}`);
+            const task = uploadBytesResumable(fileRef, file);
+            task.on('state_changed', null, reject, async ()=>{
+                try {
+                    const url = await getDownloadURL(fileRef);
+                    resolve(url);
+                } catch(e){ reject(e); }
+            });
+        });
+    }
+
+    function setEditorDirty(v){
+        editorIsDirty = v;
+        ui.editorDirtyIndicator.style.backgroundColor = v ? '#ef4444' : '#a0aec0';
+    }
+
+    function resetEditorForm(){
+        ui.editorTitle.value = '';
+        ui.editorDate.value = '';
+        ui.editorCoverImageUrl.value = '';
+        updateCoverPreview('');
+        ui.tagsInputContainer.querySelectorAll('.tag-pill').forEach(e=>e.remove());
+        if(editor && typeof editor.setMarkdown === 'function') editor.setMarkdown('');
+        setEditorDirty(false);
+    }
+
+    function updateCoverPreview(url){
+        ui.editorCoverPreview.src = url || '';
+        ui.editorCoverPreview.style.display = url ? 'block' : 'none';
+    }
+
+    function getTagsFromEditor(){
+        return [...ui.tagsInputContainer.querySelectorAll('.tag-pill')].map(p => p.dataset.tag);
+    }
+
+    function createTagPill(tag){
+        tag = (tag || '').trim();
+        if(!tag) return;
+        const current = getTagsFromEditor();
+        if(current.includes(tag)) return;
+        const pill = document.createElement('span');
+        pill.className = 'tag-pill';
+        pill.dataset.tag = tag;
+        const color = getTagColor(tag);
+        const text = getTextColorForBg(color);
+        pill.style.background = color;
+        pill.style.color = text;
+        pill.innerHTML = `<span style="padding-right:.35rem">${escapeHtml(tag)}</span><button type="button" class="ml-1" aria-label="移除標籤">&times;</button>`;
+        ui.tagsInputContainer.insertBefore(pill, ui.tagsInput);
+        pill.querySelector('button').addEventListener('click', ()=> pill.remove());
+    }
+
+    function showConfirmation(title, msg, cb){
+        ui.confirmationTitle.textContent = title;
+        ui.confirmationMessage.textContent = msg;
+        ui.confirmationModal.style.display = 'flex';
+        confirmationCallback = cb;
+    }
+
+    function initTagColorPalette(){
+        ui.tagColorPalette.innerHTML = TAG_PALETTE.map(c=>`<button class="w-full h-8 rounded-md ring-2 ring-transparent" style="background:${c}" data-color="${c}"></button>`).join('');
+        const first = ui.tagColorPalette.querySelector('button');
+        if(first){
+            first.classList.add('ring-sky-500');
+            ui.newTagColor.value = first.dataset.color;
+        }
+    }
+
+    // DOMContentLoaded: map IDs to ui object for convenience
+    document.addEventListener('DOMContentLoaded', ()=>{
+        const allIds = Array.from(document.querySelectorAll('[id]')).map(el=>el.id);
+        allIds.forEach(id=>{
+            const camel = id.replace(/-([a-z])/g, (_,c)=>c.toUpperCase());
+            ui[camel] = document.getElementById(id);
+        });
+        // body & some commonly used
+        ui.body = document.body;
+        // alias for readability
+        ui.mainNav = ui['mainNav'];
+        ui.articleGrid = ui['articleGrid'];
+        ui.articleView = ui['articleView'];
+        ui.popularTagsContainer = ui['popularTagsContainer'];
+        ui.tagsContainer = ui['tagsContainer'];
+        ui.tagManagerContainer = ui['tagManagerContainer'];
+        ui.tagColorPalette = ui['tagColorPalette'];
+        ui.newTagName = ui['newTagName'];
+        ui.newTagColor = ui['newTagColor'];
+        ui.addNewTagBtn = ui['addNewTagBtn'];
+        ui.saveTagColors = ui['saveTagColors'];
+        ui.sortOrder = ui['sortOrder'];
+        ui.searchInput = ui['searchInput'];
+        ui.pageTitle = ui['pageTitle'];
+        ui.sidebar = ui['sidebar'];
+        ui.sidebarToggle = ui['sidebarToggle'];
+        ui.sidebarBackdrop = ui['sidebarBackdrop'];
+        ui.mainContent = ui['mainContent'];
+        ui.themeToggle = ui['themeToggle'];
+        ui.editorOverlay = ui['editorOverlay'];
+        // editor inner controls
+        ui.editor = {};
+        ui.editor.container = ui['editorContainer'];
+        ui.editor.title = ui['editorTitle'];
+        ui.editor.date = ui['editorDate'];
+        ui.editor.tagsInput = ui['tagsInput'];
+        ui.editor.tagsInputContainer = ui['tagsInputContainer'];
+        ui.editor.coverImageUrl = ui['editorCoverImageUrl'];
+        ui.editor.coverUpload = ui['editorCoverUpload'];
+        ui.editor.coverPreview = ui['editorCoverPreview'];
+        ui.editor.saveBtn = ui['editorSaveBtn'];
+        ui.editor.cancelBtn = ui['editorCancelBtn'];
+        ui.editor.deleteBtn = ui['editorDeleteBtn'];
+        ui.editor.dirtyIndicator = ui['editorDirtyIndicator'];
+        ui.editor.tabEdit = ui['editorTabEdit'];
+        ui.editor.tabPreview = ui['editorTabPreview'];
+        ui.editorOverlay = ui['editorOverlay'];
+        ui.confirmationModal = ui['confirmationModal'];
+        ui.confirmActionBtn = ui['confirmActionBtn'];
+        ui.confirmCancelBtn = ui['confirmCancelBtn'];
+        ui.confirmationTitle = ui['confirmationTitle'];
+        ui.confirmationMessage = ui['confirmationMessage'];
+
+        // event bindings
+        ui.themeToggle.addEventListener('click', ()=>{
+            const isDark = ui.body.classList.toggle('dark-mode');
+            ui.themeToggle.textContent = isDark ? '🌙' : '☀️';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            document.getElementById('hl-light').media = isDark ? 'none' : 'all';
+            document.getElementById('hl-dark').media = isDark ? 'all' : 'none';
+            if(editor && typeof editor.setTheme === 'function') editor.setTheme(isDark ? 'dark' : 'light');
+        });
+        // set highlight styles initially
+        if(ui.body.classList.contains('dark-mode')){
+            document.getElementById('hl-light').media = 'none';
+            document.getElementById('hl-dark').media = 'all';
+            ui.themeToggle.textContent = '🌙';
         }
 
+        ui.sidebarToggle.addEventListener('click', ()=> toggleSidebar());
+        ui.sidebarBackdrop.addEventListener('click', ()=> toggleSidebar(false));
+
+        // secret admin toggle
+        let c = 0;
+        ui.copyrightInfo.addEventListener('click', ()=>{
+            c++; setTimeout(()=> c = 0, 1000);
+            if(c >= 5){
+                c = 0;
+                const p = prompt("密碼:");
+                if(p === "980621") toggleAdminMode(); else if(p) alert("密碼錯誤");
+            }
+        });
+
+        ui.articleGrid.addEventListener('click', e=>{
+            const t = e.target.closest('[data-action]');
+            if(t){
+                e.preventDefault();
+                const card = t.closest('.article-card');
+                if(!card) return;
+                handleArticleAction(t.dataset.action, card.dataset.id);
+            }
+        });
+
+        ui.mainNav.addEventListener('click', e=>{
+            const t = e.target.closest('.nav-link');
+            if(!t) return;
+            e.preventDefault();
+            const n = t.dataset.nav;
+            if(n === 'home') switchView('home-view');
+            else if(n === 'tags'){ renderAllTagsPage(); switchView('tags-view'); }
+            else if(n === 'tag-manager'){ renderTagManager(); switchView('tag-manager-view'); }
+            else if(n === 'new-article') openEditor();
+            if(window.innerWidth < 768) toggleSidebar(false);
+        });
+
+        ui.sortOrder.addEventListener('change', sortArticles);
+
+        ui.searchInput.addEventListener('input', e=>{
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(()=>{
+                const q = e.target.value.trim();
+                if(!q){
+                    sortArticles(); return;
+                }
+                if(!searchIndex){
+                    // fallback: simple text match
+                    const ids = Object.keys(appState.articles).filter(id=>{
+                        const a = appState.articles[id];
+                        return (a.title || '').includes(q) || (a.content || '').includes(q) || (a.tags || []).join(' ').includes(q);
+                    });
+                    renderArticleGrid(ids);
+                    ui.pageTitle.textContent = `搜尋: "${q}"`;
+                    return;
+                }
+                try {
+                    const results = searchIndex.search(q + '*').map(r => r.ref);
+                    renderArticleGrid(results);
+                    ui.pageTitle.textContent = `搜尋: "${q}"`;
+                } catch(e) {
+                    sortArticles();
+                }
+            }, 300);
+        });
+
+        document.body.addEventListener('click', e=>{
+            const t = e.target;
+            if(t.closest('.tag-filter-btn')){
+                const btn = t.closest('.tag-filter-btn');
+                const tag = btn.dataset.tag;
+                const ids = Object.keys(appState.articles || {}).filter(id => (appState.articles[id].tags || []).includes(tag));
+                renderArticleGrid(ids);
+                ui.pageTitle.textContent = `標籤: #${tag}`;
+                switchView('home-view');
+                if(window.innerWidth < 768) toggleSidebar(false);
+            }
+        });
+
+        ui.addNewTagBtn.addEventListener('click', addNewTag);
+        ui.saveTagColors.addEventListener('click', saveTagColors);
+
+        ui.tagManagerContainer.addEventListener('click', e=>{
+            const del = e.target.closest('[data-action="delete-tag"]');
+            if(del) deleteTag(del.dataset.tag);
+        });
+
+        ui.editor.saveBtn.addEventListener('click', saveArticle);
+        ui.editor.cancelBtn.addEventListener('click', closeEditor);
+        ui.editor.deleteBtn.addEventListener('click', ()=> deleteArticle(appState.currentArticleId));
+
+        ui.tagsInput.addEventListener('keydown', e=>{
+            if(e.key === 'Enter'){ e.preventDefault(); createTagPill(ui.tagsInput.value); ui.tagsInput.value = ''; }
+        });
+
+        ui.tagsInputContainer.addEventListener('click', e=>{
+            const btn = e.target.closest('button');
+            if(btn && btn.parentElement) btn.parentElement.remove();
+        });
+
+        ui.confirmActionBtn.addEventListener('click', ()=>{
+            confirmationCallback?.();
+            ui.confirmationModal.style.display = 'none';
+        });
+        ui.confirmCancelBtn.addEventListener('click', ()=> ui.confirmationModal.style.display = 'none');
+
+        ui.tagColorPalette.addEventListener('click', e=>{
+            const btn = e.target.closest('button');
+            if(!btn) return;
+            ui.newTagColor.value = btn.dataset.color;
+            ui.tagColorPalette.querySelectorAll('button').forEach(b=>b.classList.remove('ring-sky-500'));
+            btn.classList.add('ring-sky-500');
+        });
+
+        if (ui.toggleSettings) ui.toggleSettings.addEventListener('click', () => ui.editorSettingsContent.classList.toggle('hidden'));
+
+        initTagColorPalette();
+        if(window.innerWidth >= 768) toggleSidebar(true);
         loadData();
     });
 
-    // ... The rest of the JS functions (openEditor, saveArticle, etc.) remain largely the same ...
-    // ... For brevity, I am omitting functions that had no logical changes ...
-    function processTags() { appState.allTags.clear(); Object.values(appState.articles).forEach(a => (a.tags || []).forEach(t => appState.allTags.set(t, (appState.allTags.get(t) || 0) + 1))); }
-    function sortArticles() { const sortMethod = document.getElementById('sort-order').value; appState.sortedIds.sort((a, b) => { const artA = appState.articles[a], artB = appState.articles[b]; if (sortMethod === 'oldest') return new Date(artA.date) - new Date(artB.date); if (sortMethod === 'views') return (artB.viewCount || 0) - (artA.viewCount || 0); return new Date(artB.date) - new Date(artA.date); }); document.getElementById('page-title').textContent = { newest: '最新文章', oldest: '最舊文章', views: '最多觀看文章' }[sortMethod] || '最新文章'; renderArticleGrid(); }
-    function setupSearch() { searchIndex = lunr(function () { this.ref('id'); this.field('title', { boost: 10 }); this.field('content'); this.field('tags', { boost: 5 }); Object.values(appState.articles).forEach(doc => this.add({ ...doc, tags: (doc.tags || []).join(' ') })); }); }
-    async function renderArticle(id) { appState.currentArticleId = id; const article = appState.articles[id]; if (!article) { switchView('home-view'); return; } if (!sessionStorage.getItem(`viewed_${id}`)) { sessionStorage.setItem(`viewed_${id}`, 'true'); const newCount = (article.viewCount || 0) + 1; await update(ref(db, `blogData/articles/${id}`), { viewCount: newCount }).catch(e => console.warn('Failed to update view count', e)); article.viewCount = newCount; } const contentHtml = marked.parse((article.content || '').replace(/==([^=]+)==/g, '<mark>$1</mark>')); const view = document.getElementById('article-view'); view.innerHTML = `<div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-4 sm:p-8 rounded-xl shadow-md"><button class="back-to-list-btn text-sky-600 dark:text-sky-400 hover:underline mb-6">← 返回列表</button><h1 class="text-3xl md:text-5xl font-bold mb-4">${article.title}</h1><div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-500 dark:text-gray-400 mb-6 pb-6 border-b dark:border-gray-600"><span>📅 ${formatDate(article.date)}</span><span>👁️ ${article.viewCount || 1} 次檢視</span></div>${article.coverImage ? `<img src="${article.coverImage}" class="w-full rounded-lg mb-8 aspect-video object-cover shadow-sm">` : ''}<div class="prose dark:prose-invert max-w-none">${contentHtml}</div></div>`; view.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el)); switchView('article-view'); view.querySelector('.back-to-list-btn').addEventListener('click', ()=>switchView('home-view')); }
-    function renderAllTagsPage() { const container = document.getElementById('tags-container'); const sortedTags = [...appState.allTags.entries()].sort((a, b) => b[1] - a[1]); container.innerHTML = sortedTags.map(([tag, count]) => `<button class="tag-filter-btn font-semibold py-2 px-4 rounded-full transition-transform hover:scale-105" style="background-color:${getTagColor(tag)}; color:${getTextColorForBg(getTagColor(tag))};" data-tag="${tag}">${tag} <span class="ml-2 text-xs opacity-75">${count}</span></button>`).join(''); }
-    function renderPopularTags() { const container = document.getElementById('popular-tags-container'); const sortedTags = [...appState.allTags.entries()].sort((a, b) => b[1] - a[1]).slice(0, 7); container.innerHTML = sortedTags.map(([tag]) => `<button class="tag-filter-btn text-xs font-semibold py-1 px-2 rounded-full" style="background-color: ${getTagColor(tag)}; color: ${getTextColorForBg(getTagColor(tag))};" data-tag="${tag}">${tag}</button>`).join(''); }
-    function renderTagManager() { /* Unchanged */ } function addNewTag() { /* Unchanged */ } function deleteTag() { /* Unchanged */ } function saveTagColors() { /* Unchanged */ }
-    function openEditor(id = null) { if (editor) editor.destroy(); editor = new toastui.Editor({ el: document.getElementById('editor-container'), height: '100%', initialEditType: 'markdown', previewStyle: 'vertical', theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light', toolbarItems: [['heading', 'bold', 'italic'], ['ul', 'ol'], ['image', 'link'], ['code', 'codeblock']], hooks: { addImageBlobHook: (blob, callback) => { const fileRef = storageRef(storage, `images/${Date.now()}_${blob.name || 'pasted.png'}`); const uploadTask = uploadBytesResumable(fileRef, blob); uploadTask.on('state_changed', () => {}, error => { console.error('Upload failed:', error); callback('', 'image'); }, () => { getDownloadURL(uploadTask.snapshot.ref).then(url => callback(url, 'image')); }); return false; } } }); editor.on('change', () => setEditorDirty(true)); resetEditorForm(); const article = id ? appState.articles[id] : null; if (article) { document.getElementById('editor-title').value = article.title || ''; document.getElementById('editor-date').value = article.date ? article.date.split('T')[0] : ''; document.getElementById('editor-cover-image-url').value = article.coverImage || ''; updateCoverPreview(article.coverImage); (article.tags || []).forEach(createTagPill); editor.setMarkdown(article.content || ''); document.getElementById('save-btn').dataset.id = id; setEditorDirty(false); } else { document.getElementById('editor-date').value = new Date().toISOString().split('T')[0]; delete document.getElementById('save-btn').dataset.id; setEditorDirty(true); } document.getElementById('delete-btn').dataset.id = id; document.getElementById('delete-btn').style.display = id ? 'block' : 'none'; if (window.innerWidth < 768) setupEditorTabs('edit'); document.getElementById('editor-overlay').style.display = 'flex'; document.body.classList.add('overflow-hidden'); }
-    function closeEditor() { if (editorIsDirty && !confirm('有未儲存的變更，確定要離開嗎？')) return; document.getElementById('editor-overlay').style.display = 'none'; document.body.classList.remove('overflow-hidden'); setEditorDirty(false); }
-    async function saveArticle() { /* Unchanged */ }
-    async function copyArticle(id) { /* Unchanged */ }
-    function setupEditorTabs(activeTab) { /* Unchanged */ }
-    function setEditorDirty(v) { editorIsDirty = v; document.getElementById('dirty-indicator').style.background = v ? '#ef4444' : '#a0aec0'; }
-    function updateCoverPreview(url) { const p = document.getElementById('cover-preview'); p.style.display = url ? 'block' : 'none'; if (url) p.src = url; }
-    function resetEditorForm() { document.getElementById('editor-title').value = ''; document.getElementById('editor-date').value = ''; document.getElementById('editor-cover-image-url').value = ''; document.getElementById('cover-upload').value = ''; updateCoverPreview(''); document.getElementById('tags-input-container').querySelectorAll('.tag-pill').forEach(el => el.remove()); editor?.setMarkdown(''); document.getElementById('upload-progress-container').style.display = 'none'; setEditorDirty(false); }
-    function getTagsFromEditor() { return [...document.getElementById('tags-input-container').querySelectorAll('.tag-pill')].map(p => p.dataset.tag); }
-    function createTagPill(tag) { tag = tag.trim(); if (!tag || getTagsFromEditor().includes(tag)) return; const pill = document.createElement('span'); const bgColor = getTagColor(tag); const textColor = getTextColorForBg(bgColor); pill.className = 'tag-pill flex items-center text-sm font-medium pl-2.5 pr-1 py-0.5 rounded-full'; pill.style.backgroundColor = bgColor; pill.style.color = textColor; pill.dataset.tag = tag; pill.innerHTML = `${tag} <button type="button" class="ml-1.5 flex-shrink-0 h-4 w-4 rounded-full inline-flex items-center justify-center" style="color: ${textColor}80; hover { background: ${textColor}20"><svg fill="currentColor" viewBox="0 0 20 20"><path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg></button>`; document.getElementById('tags-input-container').insertBefore(pill, document.getElementById('tags-input')); }
-    function switchView(viewName) { ['home-view', 'article-view', 'tags-view', 'tag-manager-view', 'loading-view'].forEach(id => document.getElementById(id).classList.toggle('active', id === viewName)); window.scrollTo(0, 0); if(viewName !== 'article-view') appState.currentArticleId = null; const activeNav = { 'home': 'home', 'article': 'home', 'tags': 'tags', 'tag-manager': 'tag-manager' }[viewName.split('-')[0]]; document.querySelectorAll('.nav-link').forEach(n => n.classList.toggle('active-nav', n.dataset.nav === activeNav)); }
-    function showConfirmation(title, message, onConfirm) { /* Unchanged */ } function toggleEditorSettings() { /* Unchanged */ } function initTagColorPalette() { /* Unchanged */ }
+    // util: escape to prevent XSS in innerHTML writes
+    function escapeHtml(str){
+        if(!str) return '';
+        return String(str).replace(/[&<>"'`]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','`':'&#96;'}[s]));
+    }
+    function escapeAttr(str){ return escapeHtml(str).replace(/"/g, '&quot;'); }
+
 </script>
 </body>
 </html>
