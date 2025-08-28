@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAI Studio — 優化版 v2</title>
+    <title>KAI Studio </title>
     <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com?plugins=typography,forms"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -21,19 +21,48 @@
 
     <style>
         /* --- Base & Fonts --- */
-        body { font-family: 'Noto Sans TC', 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
-        .view { display: none; }
-        .view.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        body { 
+            font-family: 'Noto Sans TC', 'Inter', sans-serif; 
+            transition: background-color 0.3s, color 0.3s; 
+        }
+        .view { 
+            display: none; 
+        }
+        .view.active { 
+            display: block; 
+            animation: fadeIn 0.4s ease; 
+        }
+        @keyframes fadeIn { 
+            from { opacity: 0; } 
+            to { opacity: 1; } 
+        }
 
         /* --- Scrollbar --- */
-        :root { --scrollbar-thumb: #a0aec0; --scrollbar-track: #edf2f7; }
-        html.dark { --scrollbar-thumb: #4a5568; --scrollbar-track: #1a202c; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
-        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #718096; }
-        html.dark ::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
+        :root { 
+            --scrollbar-thumb: #a0aec0; 
+            --scrollbar-track: #edf2f7; 
+        }
+        html.dark { 
+            --scrollbar-thumb: #4a5568; 
+            --scrollbar-track: #1a202c; 
+        }
+        ::-webkit-scrollbar { 
+            width: 8px; 
+            height: 8px; 
+        }
+        ::-webkit-scrollbar-track { 
+            background: var(--scrollbar-track); 
+        }
+        ::-webkit-scrollbar-thumb { 
+            background: var(--scrollbar-thumb); 
+            border-radius: 4px; 
+        }
+        ::-webkit-scrollbar-thumb:hover { 
+            background: #718096; 
+        }
+        html.dark ::-webkit-scrollbar-thumb:hover { 
+            background: #a0aec0; 
+        }
         
         /* --- Toast Notification --- */
         #toast-notification {
@@ -46,6 +75,42 @@
             transform: translateY(0);
             opacity: 1;
             pointer-events: auto;
+        }
+        
+        /* 優化: 卡片懸停效果 */
+        .article-card {
+            transition: all 0.3s ease;
+        }
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* 優化: 標籤樣式 */
+        .tag {
+            transition: all 0.2s ease;
+        }
+        .tag:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+        
+        /* 優化: 按鈕樣式 */
+        .btn {
+            transition: all 0.2s ease;
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        /* 優化: 載入動畫 */
+        .loading-spinner {
+            border-top-color: #4f46e5;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -116,7 +181,7 @@
                 <div id="article-view" class="view"></div>
                 <div id="tags-view" class="view"></div>
                 <div id="editor-view" class="view"></div>
-                <div id="loading-view" class="view flex justify-center items-center h-64"><div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div></div>
+                <div id="loading-view" class="view flex justify-center items-center h-64"><div class="loading-spinner rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div></div>
             </div>
         </main>
     </div>
@@ -126,25 +191,49 @@
         <p id="toast-message"></p>
     </div>
 
-    <!-- Confirmation Modal (Unchanged) -->
+    <!-- Confirmation Modal -->
     <div id="confirmation-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center"><div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 w-11/12 max-w-sm text-center"><h3 id="confirmation-title" class="text-xl font-bold mb-4"></h3><p id="confirmation-message" class="text-gray-600 dark:text-gray-300 mb-6"></p><div class="flex justify-center space-x-4"><button id="confirm-cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-6 py-2 rounded-lg hover:bg-gray-300">取消</button><button id="confirm-action-btn" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600">確定</button></div></div></div>
 
     <script type="module">
-        // Firebase Imports (same as original)
+        // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getDatabase, ref, set, get, remove, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
         import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
         
-        // Firebase Config (same as original)
-        const firebaseConfig = { apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y", authDomain: "blog-63ad2.firebaseapp.com", projectId: "blog-63ad2", storageBucket: "blog-63ad2.appspot.com", messagingSenderId: "265914768921", appId: "1:265914768921:web:e4c752780e604d0be69488", databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com", };
+        // Firebase Config
+        const firebaseConfig = { 
+            apiKey: "AIzaSyAKiC62bh50NXLMWwbfNHekmVCBtTtam6Y", 
+            authDomain: "blog-63ad2.firebaseapp.com", 
+            projectId: "blog-63ad2", 
+            storageBucket: "blog-63ad2.appspot.com", 
+            messagingSenderId: "265914768921", 
+            appId: "1:265914768921:web:e4c752780e604d0be69488", 
+            databaseURL: "https://blog-63ad2-default-rtdb.firebaseio.com", 
+        };
+        
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const storage = getStorage(app);
 
         // --- GLOBAL STATE & UI ELEMENTS ---
-        let appState = { articles: {}, allTags: new Map(), tagColors: {}, isEditMode: false, currentArticleId: null, sortedIds: [], isSidebarOpen: false };
-        let editor; let searchIndex; let confirmationCallback = null; let searchDebounceTimer = null; let editorIsDirty = false;
+        const state = { 
+            articles: {}, 
+            allTags: new Map(), 
+            tagColors: {}, 
+            isEditMode: false, 
+            currentArticleId: null, 
+            sortedIds: [], 
+            isSidebarOpen: false,
+            currentView: 'home-view'
+        };
         
+        let editor = null;
+        let searchIndex = null;
+        let confirmationCallback = null;
+        let searchDebounceTimer = null;
+        let editorIsDirty = false;
+        
+        // UI 元素快取
         const ui = {
             html: document.documentElement,
             sidebar: document.getElementById('sidebar'),
@@ -158,401 +247,958 @@
                 element: document.getElementById('toast-notification'),
                 message: document.getElementById('toast-message'),
             },
+            views: {
+                home: document.getElementById('home-view'),
+                article: document.getElementById('article-view'),
+                tags: document.getElementById('tags-view'),
+                editor: document.getElementById('editor-view'),
+                loading: document.getElementById('loading-view')
+            }
         };
 
-        // --- Helpers ---
-        const getHash = str => { let h = 0; for (let i = 0; i < str.length; i++) h = str.charCodeAt(i) + ((h << 5) - h); return Math.abs(h); };
-        const formatDate = dateStr => new Date(dateStr).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
-        const getTagColor = tag => appState.tagColors[tag] || `hsl(${getHash(tag) % 360}, 60%, 45%)`;
+        // --- 工具函數 ---
+        const utils = {
+            // 生成雜湊值
+            getHash: (str) => {
+                let hash = 0;
+                for (let i = 0; i < str.length; i++) {
+                    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                return Math.abs(hash);
+            },
+            
+            // 格式化日期
+            formatDate: (dateStr) => {
+                return new Date(dateStr).toLocaleDateString('zh-TW', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            },
+            
+            // 獲取標籤顏色
+            getTagColor: (tag) => {
+                return state.tagColors[tag] || `hsl(${utils.getHash(tag) % 360}, 60%, 45%)`;
+            },
+            
+            // 防抖函數
+            debounce: (func, delay) => {
+                let timeoutId;
+                return (...args) => {
+                    clearTimeout(timeoutId);
+                    timeoutId = setTimeout(() => func.apply(this, args), delay);
+                };
+            },
+            
+            // 安全解析 HTML
+            sanitizeHTML: (html) => {
+                const temp = document.createElement('div');
+                temp.textContent = html;
+                return temp.innerHTML;
+            }
+        };
 
-        // --- Core Application Logic ---
-        async function loadData() {
-            switchView('loading-view');
-            try {
-                const snap = await get(ref(db, 'blogData/articles'));
-                appState.articles = snap.exists() ? snap.val() : {};
-                const tagColorsSnap = await get(ref(db, 'blogData/tagColors'));
-                appState.tagColors = tagColorsSnap.exists() ? tagColorsSnap.val() : {};
-                appState.sortedIds = Object.keys(appState.articles);
-                processTags();
-                setupSearch();
-                sortArticles();
-                document.getElementById('popular-tags-container').innerHTML = [...appState.allTags.entries()].sort((a,b)=>b[1]-a[1]).slice(0,7).map(([t])=>`<a href="#tags/${t}" class="tag-filter-btn text-xs font-semibold py-1 px-2 rounded-full text-white" style="background-color: ${getTagColor(t)};" data-tag="${t}">${t}</a>`).join('');
+        // --- 核心應用邏輯 ---
+        const appLogic = {
+            // 載入資料
+            async loadData() {
+                appUI.switchView('loading-view');
+                try {
+                    const [articlesSnap, tagColorsSnap] = await Promise.all([
+                        get(ref(db, 'blogData/articles')),
+                        get(ref(db, 'blogData/tagColors'))
+                    ]);
+                    
+                    state.articles = articlesSnap.exists() ? articlesSnap.val() : {};
+                    state.tagColors = tagColorsSnap.exists() ? tagColorsSnap.val() : {};
+                    state.sortedIds = Object.keys(state.articles);
+                    
+                    appLogic.processTags();
+                    appLogic.setupSearch();
+                    appLogic.sortArticles();
+                    
+                    appUI.renderPopularTags();
+                    
+                    // 資料載入完成後處理路由
+                    appRouter.handleHashChange();
+
+                } catch (error) { 
+                    console.error('資料載入失敗:', error); 
+                    appUI.showToast('資料載入失敗', 'error');
+                    appUI.switchView('home-view'); 
+                }
+            },
+            
+            // 處理標籤
+            processTags() {
+                state.allTags.clear();
+                Object.values(state.articles).forEach(article => {
+                    (article.tags || []).forEach(tag => {
+                        state.allTags.set(tag, (state.allTags.get(tag) || 0) + 1);
+                    });
+                });
+            },
+            
+            // 排序文章
+            sortArticles() {
+                const sortMethod = ui.sortOrder.value;
+                state.sortedIds.sort((a, b) => {
+                    const artA = state.articles[a];
+                    const artB = state.articles[b];
+                    
+                    if (sortMethod === 'oldest') {
+                        return new Date(artA.date) - new Date(artB.date);
+                    }
+                    if (sortMethod === 'views') {
+                        return (artB.viewCount || 0) - (artA.viewCount || 0);
+                    }
+                    // 預設為最新
+                    return new Date(artB.date) - new Date(artA.date);
+                });
                 
-                // After data is loaded, handle the initial route
-                handleHashChange();
-
-            } catch (error) { console.error('Data loading failed:', error); switchView('home-view'); }
-        }
-
-        function processTags() {
-            appState.allTags.clear();
-            Object.values(appState.articles).forEach(a => (a.tags || []).forEach(t => appState.allTags.set(t, (appState.allTags.get(t) || 0) + 1)));
-        }
-
-        function sortArticles() {
-            const sortMethod = ui.sortOrder.value;
-            appState.sortedIds.sort((a, b) => {
-                const artA = appState.articles[a], artB = appState.articles[b];
-                if (sortMethod === 'oldest') return new Date(artA.date) - new Date(artB.date);
-                if (sortMethod === 'views') return (artB.viewCount || 0) - (artA.viewCount || 0);
-                return new Date(artB.date) - new Date(artA.date);
-            });
-            renderArticleGrid();
-            updatePageTitle('home-view');
-        }
-        
-        function setupSearch() {
-            try {
-                searchIndex = lunr(function () { this.ref('id'); this.field('title', { boost: 10 }); this.field('tags', { boost: 5 }); this.field('content'); appState.sortedIds.forEach(id => this.add({ id, ...appState.articles[id], tags: (appState.articles[id].tags || []).join(' ') })); });
-            } catch (e) { console.warn('lunr failed, using fallback search.', e); searchIndex = null; }
-        }
-
-        // --- View Switching and Rendering ---
-        function switchView(viewName, data = null) {
-            ['home-view', 'article-view', 'tags-view', 'editor-view', 'loading-view'].forEach(id => {
-                document.getElementById(id).classList.toggle('active', id === viewName);
-            });
-            updatePageTitle(viewName, data);
-
-            if (viewName === 'editor-view') {
-                renderEditor(data?.id);
-            } else if (editor) {
-                if (editorIsDirty && !confirm('有未儲存的變更，確定要離開嗎？')) {
-                    location.hash = `#edit/${document.getElementById('save-btn').dataset.id}`; // prevent navigation
+                appUI.renderArticleGrid();
+                appUI.updatePageTitle('home-view');
+            },
+            
+            // 設置搜尋索引
+            setupSearch() {
+                try {
+                    searchIndex = lunr(function () {
+                        this.ref('id');
+                        this.field('title', { boost: 10 });
+                        this.field('tags', { boost: 5 });
+                        this.field('content');
+                        
+                        state.sortedIds.forEach(id => {
+                            this.add({
+                                id,
+                                ...state.articles[id],
+                                tags: (state.articles[id].tags || []).join(' ')
+                            });
+                        });
+                    });
+                } catch (e) {
+                    console.warn('lunr 初始化失敗，使用備用搜尋功能', e);
+                    searchIndex = null;
+                }
+            },
+            
+            // 執行搜尋
+            performSearch(query) {
+                if (!query.trim()) {
+                    appUI.renderArticleGrid();
                     return;
                 }
-                editor.destroy();
-                editor = null;
-                editorIsDirty = false;
+                
+                let results = [];
+                
+                if (searchIndex) {
+                    // 使用 lunr 搜尋
+                    const searchResults = searchIndex.search(query);
+                    results = searchResults.map(result => result.ref);
+                } else {
+                    // 備用搜尋功能
+                    const queryLower = query.toLowerCase();
+                    results = state.sortedIds.filter(id => {
+                        const article = state.articles[id];
+                        return (
+                            article.title.toLowerCase().includes(queryLower) ||
+                            (article.tags || []).some(tag => tag.toLowerCase().includes(queryLower)) ||
+                            (article.content || '').toLowerCase().includes(queryLower)
+                        );
+                    });
+                }
+                
+                appUI.renderArticleGrid(results);
             }
-            window.scrollTo(0, 0);
-        }
+        };
 
-        function updatePageTitle(viewName, data) {
-            let title = '';
-            const sortMethod = ui.sortOrder.value;
-            const titleMap = { newest: '最新文章', oldest: '最舊文章', views: '最多觀看文章' };
+        // --- UI 渲染與操作 ---
+        const appUI = {
+            // 切換視圖
+            switchView(viewName, data = null) {
+                // 隱藏所有視圖
+                Object.values(ui.views).forEach(view => {
+                    view.classList.remove('active');
+                });
+                
+                // 顯示當前視圖
+                ui.views[viewName.replace('-view', '')].classList.add('active');
+                state.currentView = viewName;
+                
+                appUI.updatePageTitle(viewName, data);
 
-            switch(viewName) {
-                case 'home-view': title = data?.title || titleMap[sortMethod] || '最新文章'; break;
-                case 'tags-view': title = '所有標籤'; break;
-                case 'article-view': title = appState.articles[appState.currentArticleId]?.title || '文章'; break;
-                case 'editor-view': title = data?.id ? '編輯文章' : '新增文章'; break;
-            }
-            ui.headerTitle.textContent = title;
-        }
-
-        function renderArticleGrid(ids = appState.sortedIds) {
-            const grid = document.getElementById('article-grid');
-            grid.innerHTML = ids.length === 0 ? `<p class="text-gray-500 col-span-full text-center py-12">找不到文章。</p>` : ids.map(id => {
-                const article = appState.articles[id]; if (!article) return '';
-                const tagsHtml = (article.tags || []).map(tag => `<span class="text-xs font-semibold py-1 px-2 uppercase rounded-full text-white" style="background-color: ${getTagColor(tag)};">${tag}</span>`).join(' ');
-                const cover = article.coverImage || `https://placehold.co/600x400/a78bfa/ffffff?text=${encodeURIComponent(article.title)}`;
-                return `<div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transform hover:-translate-y-1 transition-all duration-300 group flex flex-col">
-                    <div class="relative">
-                        <a href="#article/${id}" class="article-link">
-                            <img src="${cover}" alt="${article.title}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
-                        </a>
-                    </div>
-                    <div class="p-6 flex flex-col flex-grow">
-                        <h3 class="text-xl font-bold mb-2 truncate group-hover:text-indigo-500 dark:group-hover:text-indigo-400">
-                            <a href="#article/${id}" class="article-link">${article.title}</a>
-                        </h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">${formatDate(article.date)}</p>
-                        <div class="flex flex-wrap gap-2 mt-auto pt-4">${tagsHtml}</div>
-                    </div>
-                    ${appState.isEditMode ? `<a href="#edit/${id}" class="card-edit-btn absolute top-3 right-3 bg-indigo-600 text-white rounded-full w-12 h-12 flex items-center justify-center opacity-80 hover:opacity-100 z-10 transition-opacity" aria-label="Edit Article">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path></svg>
-                    </a>` : ''}
-                </div>`;
-            }).join('');
-        }
-
-        async function renderArticle(id) {
-            appState.currentArticleId = id;
-            const article = appState.articles[id]; if (!article) return switchView('home-view');
+                if (viewName === 'editor-view') {
+                    appUI.renderEditor(data?.id);
+                } else if (editor) {
+                    if (editorIsDirty && !confirm('有未儲存的變更，確定要離開嗎？')) {
+                        location.hash = `#edit/${document.getElementById('save-btn').dataset.id}`;
+                        return;
+                    }
+                    editor.destroy();
+                    editor = null;
+                    editorIsDirty = false;
+                }
+                
+                window.scrollTo(0, 0);
+            },
             
-            if (!sessionStorage.getItem(`viewed_${id}`)) {
-                sessionStorage.setItem(`viewed_${id}`, 'true');
-                const newCount = (article.viewCount || 0) + 1;
-                try { await update(ref(db, `blogData/articles/${id}`), { viewCount: newCount }); article.viewCount = newCount; } catch(e) { console.warn('Failed to update view count.', e); }
-            }
+            // 更新頁面標題
+            updatePageTitle(viewName, data) {
+                let title = '';
+                const sortMethod = ui.sortOrder.value;
+                const titleMap = { 
+                    newest: '最新文章', 
+                    oldest: '最舊文章', 
+                    views: '最多觀看文章' 
+                };
+
+                switch(viewName) {
+                    case 'home-view': 
+                        title = data?.title || titleMap[sortMethod] || '最新文章'; 
+                        break;
+                    case 'tags-view': 
+                        title = '所有標籤'; 
+                        break;
+                    case 'article-view': 
+                        title = state.articles[state.currentArticleId]?.title || '文章'; 
+                        break;
+                    case 'editor-view': 
+                        title = data?.id ? '編輯文章' : '新增文章'; 
+                        break;
+                }
+                
+                ui.headerTitle.textContent = title;
+            },
             
-            const preprocessed = (article.content || '').replace(/==([^=]+)==/g, '<mark>$1</mark>');
-            const contentHtml = marked.parse(preprocessed);
-            const view = document.getElementById('article-view');
+            // 渲染文章網格
+            renderArticleGrid(ids = state.sortedIds) {
+                const grid = document.getElementById('article-grid');
+                
+                if (ids.length === 0) {
+                    grid.innerHTML = `<p class="text-gray-500 col-span-full text-center py-12">找不到文章。</p>`;
+                    return;
+                }
+                
+                grid.innerHTML = ids.map(id => {
+                    const article = state.articles[id];
+                    if (!article) return '';
+                    
+                    const tagsHtml = (article.tags || []).map(tag => 
+                        `<span class="text-xs font-semibold py-1 px-2 uppercase rounded-full text-white tag" style="background-color: ${utils.getTagColor(tag)};">${tag}</span>`
+                    ).join(' ');
+                    
+                    const cover = article.coverImage || `https://placehold.co/600x400/a78bfa/ffffff?text=${encodeURIComponent(article.title)}`;
+                    
+                    return `
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden article-card group flex flex-col">
+                            <div class="relative">
+                                <a href="#article/${id}" class="article-link">
+                                    <img src="${cover}" alt="${utils.sanitizeHTML(article.title)}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                                </a>
+                            </div>
+                            <div class="p-6 flex flex-col flex-grow">
+                                <h3 class="text-xl font-bold mb-2 line-clamp-2 group-hover:text-indigo-500 dark:group-hover:text-indigo-400">
+                                    <a href="#article/${id}" class="article-link">${utils.sanitizeHTML(article.title)}</a>
+                                </h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">${utils.formatDate(article.date)}</p>
+                                <div class="flex flex-wrap gap-2 mt-auto pt-4">${tagsHtml}</div>
+                            </div>
+                            ${state.isEditMode ? `
+                                <a href="#edit/${id}" class="card-edit-btn absolute top-3 right-3 bg-indigo-600 text-white rounded-full w-12 h-12 flex items-center justify-center opacity-80 hover:opacity-100 z-10 transition-opacity" aria-label="編輯文章">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L14.732 3.732z"></path>
+                                    </svg>
+                                </a>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            },
+            
+            // 渲染熱門標籤
+            renderPopularTags() {
+                const container = document.getElementById('popular-tags-container');
+                const popularTags = [...state.allTags.entries()]
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 7);
+                
+                container.innerHTML = popularTags.map(([tag]) => 
+                    `<a href="#tags/${tag}" class="tag text-xs font-semibold py-1 px-2 rounded-full text-white" style="background-color: ${utils.getTagColor(tag)};" data-tag="${tag}">${tag}</a>`
+                ).join('');
+            },
+            
+            // 渲染文章
+            async renderArticle(id) {
+                state.currentArticleId = id;
+                const article = state.articles[id];
+                
+                if (!article) {
+                    appUI.switchView('home-view');
+                    return;
+                }
+                
+                // 更新瀏覽次數
+                if (!sessionStorage.getItem(`viewed_${id}`)) {
+                    sessionStorage.setItem(`viewed_${id}`, 'true');
+                    const newCount = (article.viewCount || 0) + 1;
+                    
+                    try {
+                        await update(ref(db, `blogData/articles/${id}`), { viewCount: newCount });
+                        article.viewCount = newCount;
+                    } catch(e) {
+                        console.warn('更新瀏覽次數失敗', e);
+                    }
+                }
+                
+                // 預處理內容
+                const preprocessed = (article.content || '').replace(/==([^=]+)==/g, '<mark>$1</mark>');
+                const contentHtml = marked.parse(preprocessed);
+                const view = document.getElementById('article-view');
 
-            const adminControls = appState.isEditMode ? `
-                <div class="flex items-center gap-4 mb-6">
-                    <a href="#edit/${id}" class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition-colors">編輯文章</a>
-                    <button data-id="${id}" class="delete-article-btn bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700 transition-colors">刪除文章</button>
-                </div>` : '';
-
-            view.innerHTML = `<div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-4 sm:p-8 rounded-xl shadow-lg">
-                <a href="#home" class="back-to-list-btn text-indigo-600 dark:text-indigo-400 hover:underline mb-6 inline-block">← 返回列表</a>
-                <h1 class="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight">${article.title}</h1>
-                <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-500 dark:text-gray-400 mb-6 pb-6 border-b dark:border-gray-600">
-                    <span>📅 ${formatDate(article.date)}</span>
-                    <span>👁️ ${article.viewCount || 1} 次檢視</span>
-                </div>
-                ${adminControls}
-                ${article.coverImage ? `<img src="${article.coverImage}" class="w-full rounded-lg mb-8 aspect-video object-cover shadow-sm">` : ''}
-                <div class="prose dark:prose-invert max-w-none">${contentHtml}</div>
-            </div>`;
-            if (window.hljs) view.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
-            switchView('article-view');
-        }
-
-        function renderAllTagsPage() {
-            const container = document.getElementById('tags-view');
-             const sortedTags = [...appState.allTags.entries()].sort((a, b) => b[1] - a[1]);
-            container.innerHTML = `<div class="flex flex-wrap gap-4">${sortedTags.map(([tag, count]) => `<a href="#tags/${tag}" class="tag-filter-btn text-white font-semibold py-2 px-4 rounded-full transition-transform hover:scale-105" style="background-color: ${getTagColor(tag)};" data-tag="${tag}">${tag} <span class="ml-2 text-xs opacity-75">${count}</span></a>`).join('')}</div>`;
-            switchView('tags-view');
-        }
-        
-        // --- Editor ---
-        function renderEditor(id = null) {
-            const editorView = document.getElementById('editor-view');
-            editorView.innerHTML = `
-            <div class="max-w-7xl mx-auto">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                     <h2 class="text-2xl font-bold">${id ? '編輯文章' : '新增文章'}</h2>
-                     <div class="flex items-center gap-2 w-full sm:w-auto">
-                        <span id="dirty-indicator" class="text-sm text-gray-500 mr-auto"></span>
-                        <a href="#home" class="bg-gray-200 dark:bg-gray-600 px-4 py-2 rounded-lg hover:bg-gray-300">返回</a>
-                        <button id="save-btn" data-id="${id || ''}" class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">儲存</button>
+                const adminControls = state.isEditMode ? `
+                    <div class="flex items-center gap-4 mb-6">
+                        <a href="#edit/${id}" class="btn bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700">編輯文章</a>
+                        <button data-id="${id}" class="delete-article-btn bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700">刪除文章</button>
                     </div>
-                </div>
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-1 space-y-6 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg h-fit">
-                        <div><label for="editor-title" class="block text-sm font-medium">標題</label><input type="text" id="editor-title" class="form-input mt-1 block w-full dark:bg-gray-700 dark:border-gray-600"></div>
-                        <div><label for="editor-date" class="block text-sm font-medium">發布日期</label><input type="date" id="editor-date" class="form-input mt-1 block w-full dark:bg-gray-700 dark:border-gray-600"></div>
-                        <div><label class="block text-sm font-medium">標籤</label><div id="tags-input-container" class="form-input mt-1 flex flex-wrap gap-2 items-center dark:bg-gray-700 dark:border-gray-600"><input type="text" id="tags-input" class="flex-grow bg-transparent border-none focus:ring-0 p-0" placeholder="輸入後按 Enter..."></div></div>
-                        <div id="tag-color-editor" class="space-y-4 pt-2"></div>
-                        <div>
-                            <label class="block text-sm font-medium">封面圖片</label>
-                            <div class="mt-1">
-                                <img id="cover-preview" class="w-full aspect-video object-cover rounded bg-gray-200 dark:bg-gray-700 hidden mb-2">
-                                <input type="text" id="editor-cover-image-url" class="form-input w-full mb-2 dark:bg-gray-700 dark:border-gray-600" placeholder="貼上 URL 或上傳">
-                                <label for="cover-upload" class="cursor-pointer bg-gray-500 text-white text-center py-2 px-4 rounded-md hover:bg-gray-600 w-full inline-block">上傳圖片</label>
-                                <input type="file" id="cover-upload" class="hidden" accept="image/*">
-                                <div id="upload-progress-container" class="w-full bg-gray-200 rounded-full h-2.5 mt-2 hidden"><div id="upload-progress-bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div></div>
+                ` : '';
+
+                view.innerHTML = `
+                    <div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-4 sm:p-8 rounded-xl shadow-lg">
+                        <a href="#home" class="back-to-list-btn text-indigo-600 dark:text-indigo-400 hover:underline mb-6 inline-block">← 返回列表</a>
+                        <h1 class="text-3xl md:text-5xl font-extrabold mb-4 tracking-tight">${utils.sanitizeHTML(article.title)}</h1>
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-500 dark:text-gray-400 mb-6 pb-6 border-b dark:border-gray-600">
+                            <span>📅 ${utils.formatDate(article.date)}</span>
+                            <span>👁️ ${article.viewCount || 1} 次檢視</span>
+                        </div>
+                        ${adminControls}
+                        ${article.coverImage ? `
+                            <img src="${article.coverImage}" alt="${utils.sanitizeHTML(article.title)}" class="w-full rounded-lg mb-8 aspect-video object-cover shadow-sm">
+                        ` : ''}
+                        <div class="prose dark:prose-invert max-w-none">${contentHtml}</div>
+                    </div>
+                `;
+                
+                // 代碼高亮
+                if (window.hljs) {
+                    view.querySelectorAll('pre code').forEach(el => {
+                        hljs.highlightElement(el);
+                    });
+                }
+                
+                appUI.switchView('article-view');
+            },
+            
+            // 渲染所有標籤頁面
+            renderAllTagsPage() {
+                const container = document.getElementById('tags-view');
+                const sortedTags = [...state.allTags.entries()].sort((a, b) => b[1] - a[1]);
+                
+                container.innerHTML = `
+                    <div class="flex flex-wrap gap-4">
+                        ${sortedTags.map(([tag, count]) => `
+                            <a href="#tags/${tag}" class="tag text-white font-semibold py-2 px-4 rounded-full transition-transform hover:scale-105" style="background-color: ${utils.getTagColor(tag)};" data-tag="${tag}">
+                                ${tag} <span class="ml-2 text-xs opacity-75">${count}</span>
+                            </a>
+                        `).join('')}
+                    </div>
+                `;
+                
+                appUI.switchView('tags-view');
+            },
+            
+            // 渲染編輯器
+            renderEditor(id = null) {
+                const editorView = document.getElementById('editor-view');
+                const article = id ? state.articles[id] : null;
+                
+                editorView.innerHTML = `
+                    <div class="max-w-7xl mx-auto">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                            <h2 class="text-2xl font-bold">${id ? '編輯文章' : '新增文章'}</h2>
+                            <div class="flex items-center gap-2 w-full sm:w-auto">
+                                <span id="dirty-indicator" class="text-sm text-gray-500 mr-auto"></span>
+                                <a href="#home" class="btn bg-gray-200 dark:bg-gray-600 px-4 py-2 rounded-lg hover:bg-gray-300">返回</a>
+                                <button id="save-btn" data-id="${id || ''}" class="btn bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700">儲存</button>
                             </div>
                         </div>
-                         ${id ? `<div class="border-t dark:border-gray-600 pt-6"><button id="delete-btn" data-id="${id}" class="w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">刪除這篇文章</button></div>` : ''}
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div class="lg:col-span-1 space-y-6 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg h-fit">
+                                <div>
+                                    <label for="editor-title" class="block text-sm font-medium">標題</label>
+                                    <input type="text" id="editor-title" value="${article ? utils.sanitizeHTML(article.title) : ''}" class="form-input mt-1 block w-full dark:bg-gray-700 dark:border-gray-600">
+                                </div>
+                                <div>
+                                    <label for="editor-date" class="block text-sm font-medium">發布日期</label>
+                                    <input type="date" id="editor-date" value="${article ? article.date.split('T')[0] : new Date().toISOString().split('T')[0]}" class="form-input mt-1 block w-full dark:bg-gray-700 dark:border-gray-600">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium">標籤</label>
+                                    <div id="tags-input-container" class="form-input mt-1 flex flex-wrap gap-2 items-center dark:bg-gray-700 dark:border-gray-600">
+                                        <input type="text" id="tags-input" class="flex-grow bg-transparent border-none focus:ring-0 p-0" placeholder="輸入後按 Enter...">
+                                    </div>
+                                </div>
+                                <div id="tag-color-editor" class="space-y-4 pt-2"></div>
+                                <div>
+                                    <label class="block text-sm font-medium">封面圖片</label>
+                                    <div class="mt-1">
+                                        <img id="cover-preview" class="w-full aspect-video object-cover rounded bg-gray-200 dark:bg-gray-700 ${article && article.coverImage ? '' : 'hidden'} mb-2">
+                                        <input type="text" id="editor-cover-image-url" value="${article ? article.coverImage : ''}" class="form-input w-full mb-2 dark:bg-gray-700 dark:border-gray-600" placeholder="貼上 URL 或上傳">
+                                        <label for="cover-upload" class="cursor-pointer bg-gray-500 text-white text-center py-2 px-4 rounded-md hover:bg-gray-600 w-full inline-block">上傳圖片</label>
+                                        <input type="file" id="cover-upload" class="hidden" accept="image/*">
+                                        <div id="upload-progress-container" class="w-full bg-gray-200 rounded-full h-2.5 mt-2 hidden">
+                                            <div id="upload-progress-bar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                ${id ? `
+                                    <div class="border-t dark:border-gray-600 pt-6">
+                                        <button id="delete-btn" data-id="${id}" class="btn w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">刪除這篇文章</button>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg min-h-[600px]">
+                                <div id="editor-container" class="h-full"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-lg min-h-[600px]">
-                        <div id="editor-container" class="h-full"></div>
-                    </div>
-                </div>
-            </div>`;
-            
-            if (editor) editor.destroy();
-            editor = new toastui.Editor({ el: document.getElementById('editor-container'), height: '100%', initialEditType: 'markdown', previewStyle: 'vertical', theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light' });
-            editor.on('change', () => setEditorDirty(true));
-
-            const article = id ? appState.articles[id] : null;
-            if (article) {
-                document.getElementById('editor-title').value = article.title || '';
-                document.getElementById('editor-date').value = article.date ? article.date.split('T')[0] : '';
-                document.getElementById('editor-cover-image-url').value = article.coverImage || '';
-                updateCoverPreview(article.coverImage);
-                (article.tags || []).forEach(createTagPill);
-                editor.setMarkdown(article.content || '');
-            } else {
-                document.getElementById('editor-date').value = new Date().toISOString().split('T')[0];
-                editor.setMarkdown("> [!NOTE] 這是一個提示框。\n\n一般文字可以用 `==` 來 ==高亮== 顯示。");
-            }
-            renderTagColorEditors(getTagsFromEditor());
-            setEditorDirty(false);
-        }
-        
-        function setEditorDirty(isDirty) {
-            editorIsDirty = isDirty;
-            const indicator = document.getElementById('dirty-indicator');
-            if (indicator) indicator.textContent = isDirty ? '有未儲存的變更' : '';
-        }
-
-        async function saveArticle() {
-            const saveBtn = document.getElementById('save-btn');
-            const id = saveBtn.dataset.id || `post_${Date.now()}`;
-            saveBtn.disabled = true; saveBtn.textContent = '儲存中...';
-
-            let coverImageUrl = document.getElementById('editor-cover-image-url').value.trim();
-            const file = document.getElementById('cover-upload').files[0];
-
-            if (file) {
-                try { coverImageUrl = await uploadCoverImage(file, id); }
-                catch (error) { showToast('圖片上傳失敗!', 'error'); console.error(error); saveBtn.disabled = false; saveBtn.textContent = '儲存'; return; }
-            }
-
-            const articleData = { title: document.getElementById('editor-title').value.trim() || '未命名文章', date: new Date(document.getElementById('editor-date').value).toISOString(), tags: getTagsFromEditor(), coverImage: coverImageUrl, content: editor.getMarkdown(), viewCount: (appState.articles[id]?.viewCount) || 0 };
-
-            try { await set(ref(db, `blogData/articles/${id}`), articleData); }
-            catch(e) { showToast('儲存失敗', 'error'); console.error(e); saveBtn.disabled = false; saveBtn.textContent = '儲存'; return; }
-
-            const newColors = {};
-            document.getElementById('tag-color-editor').querySelectorAll('input[type="color"]').forEach(input => { newColors[input.dataset.tag] = input.value; });
-            await update(ref(db, 'blogData/tagColors'), newColors);
-            
-            setEditorDirty(false);
-            showToast('文章已儲存');
-            saveBtn.disabled = false; saveBtn.textContent = '儲存';
-
-            // Refresh data in background to keep app state updated
-            const snap = await get(ref(db, 'blogData/articles'));
-            appState.articles = snap.exists() ? snap.val() : {};
-            processTags();
-            setupSearch();
-        }
-
-        function deleteArticle(id) {
-            if (!id || !appState.articles[id]) return;
-            showConfirmation(`確定刪除 "${appState.articles[id].title}"?`, '此操作無法復原。', async () => {
-                await remove(ref(db, `blogData/articles/${id}`));
-                ui.confirmationModal.style.display = 'none';
-                showToast('文章已刪除');
-                await loadData();
-                location.hash = '#home';
-            });
-        }
-        
-        // --- Editor Helpers (Unchanged from previous version) ---
-        function uploadCoverImage(file, id) { /* ... same code ... */ }
-        function updateCoverPreview(url) { /* ... same code ... */ }
-        function getTagsFromEditor() { /* ... same code ... */ }
-        function createTagPill(tag) { /* ... same code ... */ }
-        function renderTagColorEditors(tags) { /* ... same code ... */ }
-        
-        // --- UI & Modals ---
-        function toggleSidebar(forceState) {
-            const shouldBeOpen = typeof forceState === 'boolean' ? forceState : !appState.isSidebarOpen;
-            appState.isSidebarOpen = shouldBeOpen;
-            ui.sidebar.classList.toggle('-translate-x-full', !shouldBeOpen);
-            document.getElementById('sidebar-backdrop').classList.toggle('hidden', !shouldBeOpen);
-            if (window.innerWidth < 768) document.body.classList.toggle('overflow-hidden', shouldBeOpen);
-        }
-
-        function updateTheme(isDark) { 
-            localStorage.setItem('theme', isDark ? 'dark' : 'light'); 
-            ui.html.classList.toggle('dark', isDark); 
-            document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙'; 
-            document.getElementById('hl-light').disabled = isDark;
-            document.getElementById('hl-dark').disabled = !isDark;
-            if (editor) editor.setTheme(isDark ? 'dark' : 'light');
-        }
-        
-        function toggleAdminMode(enable) {
-            appState.isEditMode = enable;
-            ui.newArticleLink.classList.toggle('hidden', !enable);
-            ui.adminToolbar.classList.toggle('hidden', !enable);
-            showToast(enable ? '管理模式已啟用' : '已退出管理模式');
-            // Re-render current view to show/hide admin controls
-            handleHashChange();
-        }
-
-        function showConfirmation(title, message, onConfirm) {
-            document.getElementById('confirmation-title').textContent = title;
-            document.getElementById('confirmation-message').textContent = message;
-            ui.confirmationModal.style.display = 'flex';
-            confirmationCallback = onConfirm;
-        }
-
-        function showToast(message, type = 'success') {
-            ui.toast.message.textContent = message;
-            if (type === 'error') {
-                ui.toast.element.classList.remove('bg-green-500');
-                ui.toast.element.classList.add('bg-red-500');
-            } else {
-                ui.toast.element.classList.remove('bg-red-500');
-                ui.toast.element.classList.add('bg-green-500');
-            }
-            ui.toast.element.classList.add('show');
-            setTimeout(() => {
-                ui.toast.element.classList.remove('show');
-            }, 3000);
-        }
-
-        // --- Routing & Event Handling ---
-        function handleHashChange() {
-            if (editorIsDirty) {
-                if (!confirm('有未儲存的變更，確定要離開嗎？')) {
-                    // This is tricky, we need to restore the previous hash
-                    // For simplicity, we just stop navigation. A more robust solution would use a history state library.
-                    return; 
+                `;
+                
+                // 初始化編輯器
+                if (editor) {
+                    editor.destroy();
                 }
-                editorIsDirty = false; // User confirmed to discard changes
+                
+                editor = new toastui.Editor({
+                    el: document.getElementById('editor-container'),
+                    height: '100%',
+                    initialEditType: 'markdown',
+                    previewStyle: 'vertical',
+                    theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+                });
+                
+                // 設置內容
+                if (article) {
+                    editor.setMarkdown(article.content || '');
+                    
+                    // 添加現有標籤
+                    (article.tags || []).forEach(tag => {
+                        appUI.createTagPill(tag);
+                    });
+                } else {
+                    editor.setMarkdown("> [!NOTE] 這是一個提示框。\n\n一般文字可以用 `==` 來 ==高亮== 顯示。");
+                }
+                
+                // 更新預覽圖
+                if (article && article.coverImage) {
+                    appUI.updateCoverPreview(article.coverImage);
+                }
+                
+                // 渲染標籤顏色編輯器
+                appUI.renderTagColorEditors(appUI.getTagsFromEditor());
+                
+                // 設置編輯器事件
+                editor.on('change', () => {
+                    appUI.setEditorDirty(true);
+                });
+                
+                appUI.setEditorDirty(false);
+            },
+            
+            // 設置編輯器髒狀態
+            setEditorDirty(isDirty) {
+                editorIsDirty = isDirty;
+                const indicator = document.getElementById('dirty-indicator');
+                if (indicator) {
+                    indicator.textContent = isDirty ? '有未儲存的變更' : '';
+                }
+            },
+            
+            // 從編輯器獲取標籤
+            getTagsFromEditor() {
+                const tagElements = document.querySelectorAll('.tag-pill');
+                return Array.from(tagElements).map(el => el.dataset.tag);
+            },
+            
+            // 創建標籤藥丸
+            createTagPill(tag) {
+                const container = document.getElementById('tags-input-container');
+                const existingTags = appUI.getTagsFromEditor();
+                
+                if (existingTags.includes(tag)) return;
+                
+                const tagEl = document.createElement('div');
+                tagEl.className = 'tag-pill inline-flex items-center bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-100 text-sm px-3 py-1 rounded-full';
+                tagEl.dataset.tag = tag;
+                tagEl.innerHTML = `
+                    ${tag}
+                    <button type="button" class="ml-2 text-indigo-500 hover:text-indigo-700" aria-label="移除標籤">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                `;
+                
+                container.insertBefore(tagEl, document.getElementById('tags-input'));
+                appUI.setEditorDirty(true);
+            },
+            
+            // 渲染標籤顏色編輯器
+            renderTagColorEditors(tags) {
+                const container = document.getElementById('tag-color-editor');
+                container.innerHTML = '';
+                
+                if (tags.length === 0) return;
+                
+                const title = document.createElement('h4');
+                title.className = 'text-sm font-medium';
+                title.textContent = '標籤顏色';
+                container.appendChild(title);
+                
+                tags.forEach(tag => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'flex items-center justify-between';
+                    
+                    const label = document.createElement('span');
+                    label.className = 'text-sm';
+                    label.textContent = tag;
+                    
+                    const input = document.createElement('input');
+                    input.type = 'color';
+                    input.dataset.tag = tag;
+                    input.value = utils.getTagColor(tag);
+                    input.className = 'w-8 h-8 cursor-pointer';
+                    
+                    wrapper.appendChild(label);
+                    wrapper.appendChild(input);
+                    container.appendChild(wrapper);
+                });
+            },
+            
+            // 更新封面預覽
+            updateCoverPreview(url) {
+                const preview = document.getElementById('cover-preview');
+                if (!preview) return;
+                
+                if (url) {
+                    preview.src = url;
+                    preview.classList.remove('hidden');
+                } else {
+                    preview.classList.add('hidden');
+                }
+            },
+            
+            // 上傳封面圖片
+            async uploadCoverImage(file, id) {
+                return new Promise((resolve, reject) => {
+                    const storagePath = `covers/${id}_${file.name}`;
+                    const uploadRef = storageRef(storage, storagePath);
+                    const uploadTask = uploadBytesResumable(uploadRef, file);
+                    
+                    const progressContainer = document.getElementById('upload-progress-container');
+                    const progressBar = document.getElementById('upload-progress-bar');
+                    
+                    progressContainer.classList.remove('hidden');
+                    
+                    uploadTask.on('state_changed',
+                        (snapshot) => {
+                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                            progressBar.style.width = progress + '%';
+                        },
+                        (error) => {
+                            progressContainer.classList.add('hidden');
+                            reject(error);
+                        },
+                        async () => {
+                            progressContainer.classList.add('hidden');
+                            try {
+                                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                                resolve(downloadURL);
+                            } catch (error) {
+                                reject(error);
+                            }
+                        }
+                    );
+                });
+            },
+            
+            // 儲存文章
+            async saveArticle() {
+                const saveBtn = document.getElementById('save-btn');
+                const id = saveBtn.dataset.id || `post_${Date.now()}`;
+                
+                saveBtn.disabled = true;
+                saveBtn.textContent = '儲存中...';
+                
+                let coverImageUrl = document.getElementById('editor-cover-image-url').value.trim();
+                const file = document.getElementById('cover-upload').files[0];
+                
+                // 上傳圖片
+                if (file) {
+                    try {
+                        coverImageUrl = await appUI.uploadCoverImage(file, id);
+                    } catch (error) {
+                        appUI.showToast('圖片上傳失敗!', 'error');
+                        console.error(error);
+                        saveBtn.disabled = false;
+                        saveBtn.textContent = '儲存';
+                        return;
+                    }
+                }
+                
+                // 準備文章資料
+                const articleData = {
+                    title: document.getElementById('editor-title').value.trim() || '未命名文章',
+                    date: new Date(document.getElementById('editor-date').value).toISOString(),
+                    tags: appUI.getTagsFromEditor(),
+                    coverImage: coverImageUrl,
+                    content: editor.getMarkdown(),
+                    viewCount: (state.articles[id]?.viewCount) || 0
+                };
+                
+                // 儲存到資料庫
+                try {
+                    await set(ref(db, `blogData/articles/${id}`), articleData);
+                } catch(e) {
+                    appUI.showToast('儲存失敗', 'error');
+                    console.error(e);
+                    saveBtn.disabled = false;
+                    saveBtn.textContent = '儲存';
+                    return;
+                }
+                
+                // 更新標籤顏色
+                const newColors = {};
+                document.querySelectorAll('#tag-color-editor input[type="color"]').forEach(input => {
+                    newColors[input.dataset.tag] = input.value;
+                });
+                
+                try {
+                    await update(ref(db, 'blogData/tagColors'), newColors);
+                } catch (e) {
+                    console.warn('更新標籤顏色失敗', e);
+                }
+                
+                appUI.setEditorDirty(false);
+                appUI.showToast('文章已儲存');
+                saveBtn.disabled = false;
+                saveBtn.textContent = '儲存';
+                
+                // 重新載入資料
+                await appLogic.loadData();
+            },
+            
+            // 刪除文章
+            async deleteArticle(id) {
+                if (!id || !state.articles[id]) return;
+                
+                appUI.showConfirmation(
+                    `確定刪除 "${state.articles[id].title}"?`, 
+                    '此操作無法復原。', 
+                    async () => {
+                        try {
+                            await remove(ref(db, `blogData/articles/${id}`));
+                            ui.confirmationModal.style.display = 'none';
+                            appUI.showToast('文章已刪除');
+                            await appLogic.loadData();
+                            location.hash = '#home';
+                        } catch (error) {
+                            console.error('刪除文章失敗', error);
+                            appUI.showToast('刪除失敗', 'error');
+                        }
+                    }
+                );
+            },
+            
+            // 切換側邊欄
+            toggleSidebar(forceState) {
+                const shouldBeOpen = typeof forceState === 'boolean' ? forceState : !state.isSidebarOpen;
+                state.isSidebarOpen = shouldBeOpen;
+                
+                ui.sidebar.classList.toggle('-translate-x-full', !shouldBeOpen);
+                document.getElementById('sidebar-backdrop').classList.toggle('hidden', !shouldBeOpen);
+                
+                if (window.innerWidth < 768) {
+                    document.body.classList.toggle('overflow-hidden', shouldBeOpen);
+                }
+            },
+            
+            // 更新主題
+            updateTheme(isDark) {
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                ui.html.classList.toggle('dark', isDark);
+                document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙';
+                
+                document.getElementById('hl-light').disabled = isDark;
+                document.getElementById('hl-dark').disabled = !isDark;
+                
+                if (editor) {
+                    editor.setTheme(isDark ? 'dark' : 'light');
+                }
+            },
+            
+            // 切換管理模式
+            toggleAdminMode(enable) {
+                state.isEditMode = enable;
+                ui.newArticleLink.classList.toggle('hidden', !enable);
+                ui.adminToolbar.classList.toggle('hidden', !enable);
+                
+                appUI.showToast(enable ? '管理模式已啟用' : '已退出管理模式');
+                
+                // 重新渲染當前視圖以顯示/隱藏管理控制項
+                appRouter.handleHashChange();
+            },
+            
+            // 顯示確認對話框
+            showConfirmation(title, message, onConfirm) {
+                document.getElementById('confirmation-title').textContent = title;
+                document.getElementById('confirmation-message').textContent = message;
+                ui.confirmationModal.style.display = 'flex';
+                confirmationCallback = onConfirm;
+            },
+            
+            // 顯示提示訊息
+            showToast(message, type = 'success') {
+                ui.toast.message.textContent = message;
+                
+                if (type === 'error') {
+                    ui.toast.element.classList.remove('bg-green-500');
+                    ui.toast.element.classList.add('bg-red-500');
+                } else {
+                    ui.toast.element.classList.remove('bg-red-500');
+                    ui.toast.element.classList.add('bg-green-500');
+                }
+                
+                ui.toast.element.classList.add('show');
+                
+                setTimeout(() => {
+                    ui.toast.element.classList.remove('show');
+                }, 3000);
             }
+        };
 
-            const hash = location.hash || '#home';
-            if (hash.startsWith('#article/')) { const id = hash.substring(9); renderArticle(id); } 
-            else if (hash.startsWith('#tags/')) { const tag = decodeURIComponent(hash.substring(6)); const ids = appState.sortedIds.filter(id => (appState.articles[id].tags || []).includes(tag)); renderArticleGrid(ids); switchView('home-view', { title: `標籤: #${tag}` }); } 
-            else if (hash === '#tags') { renderAllTagsPage(); } 
-            else if (hash === '#new-article' && appState.isEditMode) { switchView('editor-view', { id: null }); } 
-            else if (hash.startsWith('#edit/') && appState.isEditMode) { const id = hash.substring(6); switchView('editor-view', { id }); } 
-            else { sortArticles(); switchView('home-view'); }
-        }
+        // --- 路由處理 ---
+        const appRouter = {
+            // 處理 hash 變化
+            handleHashChange() {
+                if (editorIsDirty) {
+                    if (!confirm('有未儲存的變更，確定要離開嗎？')) {
+                        return;
+                    }
+                    editorIsDirty = false;
+                }
+                
+                const hash = location.hash || '#home';
+                
+                if (hash.startsWith('#article/')) {
+                    const id = hash.substring(9);
+                    appUI.renderArticle(id);
+                } else if (hash.startsWith('#tags/')) {
+                    const tag = decodeURIComponent(hash.substring(6));
+                    const ids = state.sortedIds.filter(id => 
+                        (state.articles[id].tags || []).includes(tag)
+                    );
+                    appUI.renderArticleGrid(ids);
+                    appUI.switchView('home-view', { title: `標籤: #${tag}` });
+                } else if (hash === '#tags') {
+                    appUI.renderAllTagsPage();
+                } else if (hash === '#new-article' && state.isEditMode) {
+                    appUI.switchView('editor-view', { id: null });
+                } else if (hash.startsWith('#edit/') && state.isEditMode) {
+                    const id = hash.substring(6);
+                    appUI.switchView('editor-view', { id });
+                } else {
+                    appLogic.sortArticles();
+                    appUI.switchView('home-view');
+                }
+            }
+        };
 
+        // --- 事件處理 ---
+        const eventHandlers = {
+            // 初始化事件監聽器
+            init() {
+                // 主題初始化
+                appUI.updateTheme(ui.html.classList.contains('dark'));
+                
+                // 載入資料
+                appLogic.loadData();
+                
+                // hashchange 事件
+                window.addEventListener('hashchange', () => {
+                    appRouter.handleHashChange();
+                });
+                
+                // 點擊事件委派
+                document.body.addEventListener('click', (e) => {
+                    const target = e.target;
+                    const closest = (sel) => target.closest(sel);
+                    
+                    // 導航連結
+                    const navLink = closest('a.nav-link');
+                    if (navLink) {
+                        e.preventDefault();
+                        location.hash = navLink.getAttribute('href');
+                        if (window.innerWidth < 768) {
+                            appUI.toggleSidebar(false);
+                        }
+                        return;
+                    }
+                    
+                    // 文章連結
+                    const articleLink = closest('a.article-link');
+                    if (articleLink) {
+                        e.preventDefault();
+                        location.hash = articleLink.getAttribute('href');
+                        return;
+                    }
+                    
+                    // 側邊欄切換
+                    if (closest('#sidebar-toggle')) {
+                        appUI.toggleSidebar();
+                        return;
+                    }
+                    
+                    // 側邊欄背景點擊
+                    if (closest('#sidebar-backdrop')) {
+                        appUI.toggleSidebar(false);
+                        return;
+                    }
+                    
+                    // 網站標題點擊
+                    if (closest('#site-title-sidebar')) {
+                        document.getElementById('search-input').value = '';
+                        location.hash = '#home';
+                        return;
+                    }
+                    
+                    // 標籤過濾按鈕
+                    const tagFilterBtn = closest('.tag-filter-btn');
+                    if (tagFilterBtn) {
+                        e.preventDefault();
+                        location.hash = tagFilterBtn.getAttribute('href');
+                        return;
+                    }
+                    
+                    // 主題切換
+                    if (closest('#theme-toggle')) {
+                        appUI.updateTheme(!ui.html.classList.contains('dark'));
+                        return;
+                    }
+                    
+                    // 版權資訊點擊 (管理模式切換)
+                    if (closest('#copyright-info')) {
+                        const p = prompt('請輸入管理密碼:');
+                        if (p === "980621") {
+                            appUI.toggleAdminMode(!state.isEditMode);
+                        } else if (p) {
+                            alert('密碼錯誤！');
+                        }
+                        return;
+                    }
+                    
+                    // 儲存按鈕
+                    if (closest('#save-btn')) {
+                        appUI.saveArticle();
+                        return;
+                    }
+                    
+                    // 刪除按鈕
+                    if (closest('#delete-btn')) {
+                        appUI.deleteArticle(closest('#delete-btn').dataset.id);
+                        return;
+                    }
+                    
+                    // 刪除文章按鈕
+                    if (closest('.delete-article-btn')) {
+                        appUI.deleteArticle(closest('.delete-article-btn').dataset.id);
+                        return;
+                    }
+                    
+                    // 標籤藥丸刪除按鈕
+                    if (closest('.tag-pill button')) {
+                        closest('.tag-pill').remove();
+                        appUI.setEditorDirty(true);
+                        appUI.renderTagColorEditors(appUI.getTagsFromEditor());
+                        return;
+                    }
+                    
+                    // 確認對話框按鈕
+                    if (closest('#confirm-action-btn')) {
+                        if (confirmationCallback) {
+                            confirmationCallback();
+                        }
+                        return;
+                    }
+                    
+                    if (closest('#confirm-cancel-btn')) {
+                        ui.confirmationModal.style.display = 'none';
+                        return;
+                    }
+                });
+                
+                // 輸入事件
+                document.body.addEventListener('input', (e) => {
+                    if (e.target.closest('#editor-view')) {
+                        if (e.target.id === 'editor-cover-image-url') {
+                            appUI.updateCoverPreview(e.target.value);
+                        }
+                        appUI.setEditorDirty(true);
+                    }
+                });
+                
+                // 變更事件
+                document.body.addEventListener('change', (e) => {
+                    if (e.target.id === 'cover-upload') {
+                        const file = e.target.files[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = (ev) => {
+                                appUI.updateCoverPreview(ev.target.result);
+                            };
+                            reader.readAsDataURL(file);
+                            appUI.setEditorDirty(true);
+                        }
+                    }
+                });
+                
+                // 鍵盤事件
+                document.body.addEventListener('keydown', (e) => {
+                    if (e.target.id === 'tags-input' && (e.key === 'Enter' || e.key === ',')) {
+                        e.preventDefault();
+                        if (e.target.value) {
+                            appUI.createTagPill(e.target.value);
+                            e.target.value = '';
+                        }
+                        appUI.setEditorDirty(true);
+                    }
+                });
+                
+                // 排序選擇事件
+                ui.sortOrder.addEventListener('change', () => {
+                    appLogic.sortArticles();
+                });
+                
+                // 搜尋輸入事件 (防抖)
+                document.getElementById('search-input').addEventListener('input', 
+                    utils.debounce((e) => {
+                        appLogic.performSearch(e.target.value);
+                    }, 300)
+                );
+                
+                // 離開頁面前確認
+                window.addEventListener('beforeunload', (e) => {
+                    if (editorIsDirty) {
+                        e.preventDefault();
+                        e.returnValue = '';
+                    }
+                });
+            }
+        };
+
+        // 初始化應用
         document.addEventListener('DOMContentLoaded', () => {
-            updateTheme(ui.html.classList.contains('dark'));
-            loadData();
-            window.addEventListener('hashchange', handleHashChange);
-
-            document.body.addEventListener('click', e => {
-                const target = e.target;
-                const closest = sel => target.closest(sel);
-
-                const navLink = closest('a.nav-link');
-                if (navLink) { e.preventDefault(); location.hash = navLink.getAttribute('href'); if (window.innerWidth < 768) toggleSidebar(false); return; }
-                
-                const articleLink = closest('a.article-link');
-                if (articleLink) { e.preventDefault(); location.hash = articleLink.getAttribute('href'); return; }
-
-                if (closest('#sidebar-toggle')) toggleSidebar();
-                if (closest('#sidebar-backdrop')) toggleSidebar(false);
-                if (closest('#site-title-sidebar')) { document.getElementById('search-input').value = ''; location.hash = '#home'; }
-                if (closest('.tag-filter-btn')) { e.preventDefault(); location.hash = closest('.tag-filter-btn').getAttribute('href'); }
-                if (closest('#theme-toggle')) updateTheme(!ui.html.classList.contains('dark'));
-
-                if (closest('#copyright-info')) {
-                    const p = prompt('請輸入管理密碼:');
-                    if (p === "980621") { toggleAdminMode(!appState.isEditMode); } 
-                    else if (p) { alert('密碼錯誤！'); }
-                }
-                
-                if (closest('#save-btn')) saveArticle();
-                if (closest('#delete-btn')) deleteArticle(closest('#delete-btn').dataset.id);
-                if (closest('.delete-article-btn')) deleteArticle(closest('.delete-article-btn').dataset.id);
-                if (closest('.tag-pill button')) { closest('.tag-pill').remove(); setEditorDirty(true); renderTagColorEditors(getTagsFromEditor()); }
-
-                if (closest('#confirm-action-btn')) confirmationCallback && confirmationCallback();
-                if (closest('#confirm-cancel-btn')) ui.confirmationModal.style.display = 'none';
-            });
-            
-            document.body.addEventListener('input', e => {
-                if (e.target.closest('#editor-view')) {
-                    if (e.target.id === 'editor-cover-image-url') updateCoverPreview(e.target.value);
-                    setEditorDirty(true);
-                }
-            });
-            document.body.addEventListener('change', e => {
-                 if(e.target.id === 'cover-upload') {
-                     const f = e.target.files[0];
-                     if (f) { const r = new FileReader(); r.onload = ev => updateCoverPreview(ev.target.result); r.readAsDataURL(f); setEditorDirty(true); }
-                 }
-            });
-            document.body.addEventListener('keydown', e => {
-                if (e.target.id === 'tags-input' && (e.key === 'Enter' || e.key === ',')) {
-                    e.preventDefault(); e.target.value && createTagPill(e.target.value); e.target.value = ''; setEditorDirty(true);
-                }
-            });
-
-            ui.sortOrder.addEventListener('change', sortArticles);
-            
-            document.getElementById('search-input').addEventListener('input', e => { /* ... same as previous ... */ });
-            
-            window.addEventListener('beforeunload', (e) => { if (editorIsDirty) { e.preventDefault(); e.returnValue = ''; } });
+            eventHandlers.init();
         });
     </script>
 </body>
