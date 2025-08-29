@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAI Studio</title>
+    <title>KAI Studio - 最終修復版</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
 
@@ -39,24 +39,22 @@
         
         .form-input, .form-select { @apply focus:ring-2 focus:ring-sky-500 focus:border-sky-500; }
         
-        .toastui-editor-defaultUI { background-color: white; }
-        html.dark .toastui-editor-defaultUI { background-color: #1f2937; }
+        /* --- [FIX] Dark Mode Editor Text Color --- */
+        html.dark .toastui-editor-contents { color: #d1d5db; } /* Sets text color for markdown content */
+        html.dark .toastui-editor-md-container, html.dark .toastui-editor-ww-container { background-color: #1f2937; }
+        html.dark .toastui-editor-defaultUI { background-color: #1f2937; border-color: #374151; }
         
-        /* Mobile editor tab styles */
         .editor-pane-hidden { display: none !important; }
         .editor-tab.active { @apply bg-sky-600 text-white; }
         .editor-tab { @apply flex-1 text-center py-3 font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 transition-colors; }
         
-        /* Active nav link style */
         .nav-link.active-nav { @apply bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300 font-semibold; }
         
-        /* Toast notification styles */
         #toast-container { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.75rem; }
-        .toast { padding: 1rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); color: white; opacity: 0; transform: translateX(100%); animation: toastInRight 0.5s forwards; display: flex; align-items: center; gap: 0.75rem; }
+        .toast { padding: 1rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); color: white; opacity: 0; transform: translateX(100%); animation: toastInRight 0.5s forwards; display: flex; align-items-center; gap: 0.75rem; }
         .toast.success { background-color: #22c55e; } .toast.error { background-color: #ef4444; } .toast.info { background-color: #3b82f6; }
         @keyframes toastInRight { to { opacity: 1; transform: translateX(0); } }
         
-        /* Hamburger/Close Icon Transition */
         #sidebar-toggle .icon-menu, #sidebar-toggle .icon-close { transition: transform 0.3s ease-in-out, opacity 0.2s ease-in-out; }
         html.sidebar-open #sidebar-toggle .icon-menu { transform: rotate(90deg); opacity: 0; }
         html:not(.sidebar-open) #sidebar-toggle .icon-close { transform: rotate(-90deg); opacity: 0; }
@@ -108,7 +106,43 @@
 </div>
 
 <!-- Editor Modal -->
-<div id="editor-overlay" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-0 md:p-4"><div class="bg-white dark:bg-gray-800 rounded-none md:rounded-lg shadow-2xl w-full h-full flex flex-col md:flex-row overflow-hidden"><div id="editor-settings-wrapper" class="w-full md:w-96 md:flex-shrink-0 border-b md:border-b-0 md:border-r dark:border-gray-700"><div class="flex justify-between items-center p-4 border-b dark:border-gray-700"><h3 class="text-xl font-bold">文章設定 <span id="dirty-indicator" class="editor-dirty-indicator bg-gray-400"></span></h3><button id="toggle-settings" class="md:hidden text-gray-500 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"><svg id="toggle-settings-icon" class="w-5 h-5 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" /></svg></button></div><div id="editor-settings-content" class="p-4 space-y-4 overflow-y-auto"><div><label for="editor-title" class="block text-sm font-medium mb-1">標題</label><input type="text" id="editor-title" class="form-input block w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"></div><div><label for="editor-date" class="block text-sm font-medium mb-1">發布日期</label><input type="date" id="editor-date" class="form-input block w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"></div><div><label class="block text-sm font-medium mb-1">標籤</label><div id="tags-input-container" class="form-input flex flex-wrap gap-2 items-center dark:bg-gray-700 dark:border-gray-600"><input type="text" id="tags-input" class="flex-grow bg-transparent border-none focus:ring-0 p-0 dark:text-gray-200 dark:placeholder-gray-400" placeholder="輸入後按 Enter..."></div></div><div><label class="block text-sm font-medium mb-1">封面圖片</label><div class="mt-1"><img id="cover-preview" class="w-full aspect-video object-cover rounded bg-gray-200 dark:bg-gray-700 hidden mb-2"><input type="text" id="editor-cover-image-url" class="form-input w-full mb-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" placeholder="貼上 URL 或上傳"><label for="cover-upload" class="cursor-pointer bg-sky-500 text-white text-center py-2 px-4 rounded-md hover:bg-sky-600 w-full inline-block">上傳圖片</label><input type="file" id="cover-upload" class="hidden" accept="image/*"><div id="upload-progress-container" class="w-full bg-gray-200 rounded-full h-2.5 mt-2 hidden"><div id="upload-progress-bar" class="bg-sky-600 h-2.5 rounded-full" style="width: 0%"></div></div></div></div></div></div><div class="flex-grow flex flex-col min-h-0"><div class="md:hidden flex border-b dark:border-gray-700 flex-shrink-0"><button id="editor-tab-edit" class="editor-tab active">編輯</button><button id="editor-tab-preview" class="editor-tab">預覽</button></div><div id="editor-container" class="flex-grow relative min-h-0"></div><div class="flex-shrink-0 p-4 bg-gray-50 dark:bg-gray-900 border-t dark:border-gray-700 flex justify-between items-center"><button id="delete-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">刪除</button><div class="space-x-4"><button id="cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-4 py-2 rounded-lg hover:bg-gray-300">取消</button><button id="save-btn" class="bg-sky-600 text-white px-6 py-2 rounded-lg hover:bg-sky-700">儲存</button></div></div></div></div></div>
+<div id="editor-overlay" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-0 md:p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-none md:rounded-lg shadow-2xl w-full h-full flex flex-col md:flex-row overflow-hidden relative">
+        <!-- [NEW] Close Button -->
+        <button id="close-editor-btn" class="absolute top-3 right-3 z-20 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 p-2 rounded-full bg-white/50 dark:bg-black/50 backdrop-blur-sm">
+             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+
+        <div id="editor-settings-wrapper" class="w-full md:w-96 md:flex-shrink-0 border-b md:border-b-0 md:border-r dark:border-gray-700">
+            <div class="flex justify-between items-center p-4 border-b dark:border-gray-700">
+                <h3 class="text-xl font-bold">文章設定 <span id="dirty-indicator" class="editor-dirty-indicator bg-gray-400"></span></h3>
+                <button id="toggle-settings" class="md:hidden text-gray-500 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
+                    <svg id="toggle-settings-icon" class="w-5 h-5 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" /></svg>
+                </button>
+            </div>
+            <div id="editor-settings-content" class="p-4 space-y-4 overflow-y-auto">
+                <div><label for="editor-title" class="block text-sm font-medium mb-1">標題</label><input type="text" id="editor-title" class="form-input block w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"></div>
+                <div><label for="editor-date" class="block text-sm font-medium mb-1">發布日期</label><input type="date" id="editor-date" class="form-input block w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"></div>
+                <div><label class="block text-sm font-medium mb-1">標籤</label><div id="tags-input-container" class="form-input flex flex-wrap gap-2 items-center dark:bg-gray-700 dark:border-gray-600"><input type="text" id="tags-input" class="flex-grow bg-transparent border-none focus:ring-0 p-0 dark:text-gray-200 dark:placeholder-gray-400" placeholder="輸入後按 Enter..."></div></div>
+                <div><label class="block text-sm font-medium mb-1">封面圖片</label><div class="mt-1"><img id="cover-preview" class="w-full aspect-video object-cover rounded bg-gray-200 dark:bg-gray-700 hidden mb-2"><input type="text" id="editor-cover-image-url" class="form-input w-full mb-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" placeholder="貼上 URL 或上傳"><label for="cover-upload" class="cursor-pointer bg-sky-500 text-white text-center py-2 px-4 rounded-md hover:bg-sky-600 w-full inline-block">上傳圖片</label><input type="file" id="cover-upload" class="hidden" accept="image/*"><div id="upload-progress-container" class="w-full bg-gray-200 rounded-full h-2.5 mt-2 hidden"><div id="upload-progress-bar" class="bg-sky-600 h-2.5 rounded-full" style="width: 0%"></div></div></div></div>
+            </div>
+        </div>
+        <div class="flex-grow flex flex-col min-h-0">
+            <div class="md:hidden flex border-b dark:border-gray-700 flex-shrink-0">
+                <button id="editor-tab-edit" class="editor-tab active">編輯</button>
+                <button id="editor-tab-preview" class="editor-tab">預覽</button>
+            </div>
+            <div id="editor-container" class="flex-grow relative min-h-0"></div>
+            <div class="flex-shrink-0 p-4 bg-gray-50 dark:bg-gray-900 border-t dark:border-gray-700 flex justify-between items-center">
+                <button id="delete-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">刪除</button>
+                <div class="space-x-4">
+                    <button id="cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-4 py-2 rounded-lg hover:bg-gray-300">取消</button>
+                    <button id="save-btn" class="bg-sky-600 text-white px-6 py-2 rounded-lg hover:bg-sky-700">儲存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="confirmation-modal" class="fixed inset-0 bg-black/60 z-[60] hidden items-center justify-center"><div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 w-11/12 max-w-sm text-center"><h3 id="confirmation-title" class="text-xl font-bold mb-4"></h3><p id="confirmation-message" class="text-gray-600 dark:text-gray-300 mb-6"></p><div class="flex justify-center space-x-4"><button id="confirm-cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-6 py-2 rounded-lg hover:bg-gray-300">取消</button><button id="confirm-action-btn" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600">確定</button></div></div></div>
 
 <script type="module">
@@ -219,14 +253,14 @@
     function renderTagManager() {
         const container = document.getElementById('tag-manager-container');
         const sortedTags = [...appState.allTags.keys()].sort();
-        container.innerHTML = sortedTags.map(tag => `
+        container.innerHTML = sortedTags.length > 0 ? sortedTags.map(tag => `
             <div class="flex items-center justify-between p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
                 <div class="flex items-center gap-3">
                     <input type="color" value="${getTagColor(tag)}" data-tag="${tag}" class="tag-color-input w-10 h-10 p-1 bg-white dark:bg-gray-700 rounded-md cursor-pointer border-gray-300 dark:border-gray-600">
                     <span class="font-medium">${tag}</span>
                 </div>
                 <button class="delete-tag-btn text-red-500 hover:text-red-700 p-2" data-tag="${tag}">🗑️</button>
-            </div>`).join('');
+            </div>`).join('') : '<p class="text-gray-500 text-center py-4">目前沒有標籤</p>';
     }
 
     function openEditor(id = null) {
@@ -291,49 +325,39 @@
         const file = document.getElementById('cover-upload').files[0];
 
         if (file) {
-            try {
-                coverImageUrl = await uploadCoverImage(file, id);
-            } catch (error) {
-                showToast('圖片上傳失敗', 'error');
-                btn.disabled = false; btn.textContent = '儲存';
-                return;
-            }
+            try { coverImageUrl = await uploadCoverImage(file, id); }
+            catch (error) { showToast('圖片上傳失敗', 'error'); btn.disabled = false; btn.textContent = '儲存'; return; }
         }
 
         const articleData = {
-            id: id,
-            title: document.getElementById('editor-title').value.trim() || '未命名文章',
-            date: new Date(document.getElementById('editor-date').value).toISOString(),
-            tags: getTagsFromEditor(),
-            coverImage: coverImageUrl,
-            content: editor.getMarkdown(),
-            viewCount: (id && appState.articles[id]?.viewCount) || 0,
+            id: id, title: document.getElementById('editor-title').value.trim() || '未命名文章',
+            date: new Date(document.getElementById('editor-date').value).toISOString(), tags: getTagsFromEditor(),
+            coverImage: coverImageUrl, content: editor.getMarkdown(), viewCount: (appState.articles[id]?.viewCount) || 0,
         };
         
         try {
             await set(ref(db, `blogData/articles/${id}`), articleData);
-            appState.articles[id] = articleData; // Update local state immediately
+            appState.articles[id] = articleData;
             processData();
             showToast('文章已儲存', 'success');
             setEditorDirty(false);
-            btn.dataset.id = id; // Ensure new post gets an ID for subsequent saves
+            btn.dataset.id = id;
             document.getElementById('delete-btn').dataset.id = id;
             document.getElementById('delete-btn').style.display = 'block';
-        } catch(e) {
-            showToast('儲存失敗', 'error');
-            console.error(e);
-        } finally {
-            btn.disabled = false; btn.textContent = '儲存';
-        }
+            document.getElementById('cancel-btn').textContent = '關閉'; // Change button text
+        } catch(e) { showToast('儲存失敗', 'error'); console.error(e); }
+        finally { btn.disabled = false; btn.textContent = '儲存'; }
     }
     
     async function copyArticle(id) {
         const original = appState.articles[id];
         if (!original) return;
         const newId = `post_${Date.now()}`;
-        const newArticle = { ...original, title: `${original.title} (複製)`, id: newId, date: new Date().toISOString() };
-        await set(ref(db, `blogData/articles/${newId}`), newArticle);
-        appState.articles[newId] = newArticle;
+        const newArticleData = { ...original, title: `${original.title} (複製)`, id: newId, date: new Date().toISOString(), viewCount: 0 };
+        delete newArticleData.id; // Legacy ID if present
+        
+        await set(ref(db, `blogData/articles/${newId}`), newArticleData);
+        appState.articles[newId] = { ...newArticleData, id: newId };
         processData();
         showToast('文章已複製', 'success');
     }
@@ -351,12 +375,13 @@
             }
         });
     }
-
+    
+    // --- UI & State Management ---
     function toggleAdminMode(enable) {
         appState.isEditMode = enable;
-        document.getElementById('new-article-link').style.display = enable ? 'flex' : 'none';
-        document.getElementById('tag-manager-link').style.display = enable ? 'flex' : 'none';
-        document.getElementById('admin-toolbar').style.display = enable ? 'block' : 'none';
+        ['new-article-link', 'tag-manager-link', 'admin-toolbar'].forEach(id => {
+            document.getElementById(id).style.display = enable ? 'flex' : 'none';
+        });
         showToast(enable ? '管理模式已啟用' : '已退出管理模式', 'info');
         renderArticleGrid();
     }
@@ -366,33 +391,21 @@
         document.documentElement.classList.toggle('sidebar-open', shouldBeOpen);
         document.getElementById('sidebar').classList.toggle('-translate-x-full', !shouldBeOpen);
         document.getElementById('sidebar-backdrop').classList.toggle('hidden', !shouldBeOpen);
-        if (window.innerWidth < 768) {
-            document.body.classList.toggle('overflow-hidden', shouldBeOpen);
-        }
+        if (window.innerWidth < 768) { document.body.classList.toggle('overflow-hidden', shouldBeOpen); }
     }
     
     function setupEditorTabs(activeTab) {
-        const editTab = document.getElementById('editor-tab-edit');
-        const previewTab = document.getElementById('editor-tab-preview');
-        const markdownPane = document.querySelector('.toastui-editor-md-container');
-        const previewPane = document.querySelector('.toastui-editor-preview-container');
-
-        if (activeTab === 'edit') {
-            editTab.classList.add('active');
-            previewTab.classList.remove('active');
-            markdownPane?.classList.remove('editor-pane-hidden');
-            previewPane?.classList.add('editor-pane-hidden');
-        } else {
-            editTab.classList.remove('active');
-            previewTab.classList.add('active');
-            markdownPane?.classList.add('editor-pane-hidden');
-            previewPane?.classList.remove('editor-pane-hidden');
-        }
+        const [editTab, previewTab] = [document.getElementById('editor-tab-edit'), document.getElementById('editor-tab-preview')];
+        const [markdownPane, previewPane] = [document.querySelector('.toastui-editor-md-container'), document.querySelector('.toastui-editor-preview-container')];
+        editTab.classList.toggle('active', activeTab === 'edit');
+        previewTab.classList.toggle('active', activeTab === 'preview');
+        markdownPane?.classList.toggle('editor-pane-hidden', activeTab !== 'edit');
+        previewPane?.classList.toggle('editor-pane-hidden', activeTab !== 'preview');
     }
     
     function setEditorDirty(v) { editorIsDirty = v; document.getElementById('dirty-indicator').style.background = v ? '#ef4444' : '#a0aec0'; }
     function closeEditor() { if (editorIsDirty && !confirm('有未儲存的變更，確定要離開嗎？')) return; document.getElementById('editor-overlay').style.display = 'none'; document.body.classList.remove('overflow-hidden'); setEditorDirty(false); }
-    function resetEditorForm() { ['editor-title', 'editor-date', 'editor-cover-image-url', 'cover-upload'].forEach(id => document.getElementById(id).value = ''); updateCoverPreview(''); document.getElementById('tags-input-container').querySelectorAll('.tag-pill').forEach(el => el.remove()); editor?.setMarkdown(''); document.getElementById('upload-progress-container').style.display = 'none'; setEditorDirty(false); }
+    function resetEditorForm() { ['editor-title', 'editor-date', 'editor-cover-image-url', 'cover-upload'].forEach(id => document.getElementById(id).value = ''); updateCoverPreview(''); document.getElementById('tags-input-container').querySelectorAll('.tag-pill').forEach(el => el.remove()); editor?.setMarkdown(''); document.getElementById('upload-progress-container').style.display = 'none'; document.getElementById('cancel-btn').textContent = '取消'; setEditorDirty(false); }
     function getTagsFromEditor() { return [...document.getElementById('tags-input-container').querySelectorAll('.tag-pill')].map(p => p.dataset.tag); }
     function createTagPill(tag) { tag = tag.trim(); if (!tag || getTagsFromEditor().includes(tag)) return; const pill = document.createElement('span'); const bgColor = getTagColor(tag); const textColor = getTextColorForBg(bgColor); pill.className = 'tag-pill flex items-center text-sm font-medium pl-2.5 pr-1 py-0.5 rounded-full'; pill.style.backgroundColor = bgColor; pill.style.color = textColor; pill.dataset.tag = tag; pill.innerHTML = `${tag} <button type="button" class="ml-1.5 flex-shrink-0 h-4 w-4 rounded-full inline-flex items-center justify-center" style="color: ${textColor}80; hover { background: ${textColor}20"><svg fill="currentColor" viewBox="0 0 20 20"><path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg></button>`; document.getElementById('tags-input-container').insertBefore(pill, document.getElementById('tags-input')); }
     function switchView(viewName) { ['home-view', 'article-view', 'tags-view', 'tag-manager-view', 'loading-view'].forEach(id => document.getElementById(id).classList.toggle('active', id === viewName)); window.scrollTo(0, 0); if(viewName !== 'article-view') appState.currentArticleId = null; const activeNav = { 'home': 'home', 'article': 'home', 'tags': 'tags', 'tag-manager': 'tag-manager' }[viewName.split('-')[0]]; document.querySelectorAll('.nav-link').forEach(n => n.classList.toggle('active-nav', n.dataset.nav === activeNav)); document.getElementById('header-title').textContent = {home:'最新文章',tags:'所有標籤','tag-manager':'管理標籤'}[viewName.split('-')[0]] || '文章'; }
@@ -404,58 +417,43 @@
     document.addEventListener('DOMContentLoaded', () => {
         loadData();
         
-        // Delegated event listener for the whole document
         document.body.addEventListener('click', e => {
             const target = e.target;
             const closest = (selector) => target.closest(selector);
             
-            // Sidebar and Nav
-            if (closest('#sidebar-toggle')) toggleSidebar();
-            if (closest('#sidebar-backdrop')) toggleSidebar(false);
-            if (closest('#site-title-sidebar')) { document.getElementById('search-input').value = ''; sortArticles(); switchView('home-view'); if (window.innerWidth < 768) toggleSidebar(false); }
+            if (closest('#sidebar-toggle')) { toggleSidebar(); return; }
+            if (closest('#sidebar-backdrop')) { toggleSidebar(false); return; }
+            if (closest('#site-title-sidebar')) { document.getElementById('search-input').value = ''; sortArticles(); switchView('home-view'); if (window.innerWidth < 768) toggleSidebar(false); return; }
             const navLink = closest('.nav-link');
             if (navLink) { e.preventDefault(); const nav = navLink.dataset.nav; if (nav === 'home') { sortArticles(); switchView('home-view'); } else if (nav === 'tags') { renderAllTagsPage(); switchView('tags-view'); } else if (nav === 'new-article') openEditor(); else if (nav === 'tag-manager') { renderTagManager(); switchView('tag-manager-view'); } if (window.innerWidth < 768) toggleSidebar(false); return; }
             if (closest('.back-to-list-btn')) { switchView('home-view'); return; }
             
-            // Article Grid Actions
             const articleCard = closest('.article-card');
-            if (articleCard) {
-                const id = articleCard.dataset.id;
-                if (closest('.card-edit-btn')) { openEditor(id); }
-                else if (closest('.card-copy-btn')) { copyArticle(id); }
-                else if (closest('.card-delete-btn')) { deleteArticle(id); }
-                else if (closest('.card-link')) { e.preventDefault(); renderArticle(id); }
-                return;
-            }
+            if (articleCard) { const id = articleCard.dataset.id; if (closest('.card-edit-btn')) openEditor(id); else if (closest('.card-copy-btn')) copyArticle(id); else if (closest('.card-delete-btn')) deleteArticle(id); else if (closest('.card-link')) { e.preventDefault(); renderArticle(id); } return; }
 
-            // Tag Filtering
             const tagFilterBtn = closest('.tag-filter-btn');
             if(tagFilterBtn) { const tag = tagFilterBtn.dataset.tag; const ids = appState.sortedIds.filter(id => (appState.articles[id].tags||[]).includes(tag)); renderArticleGrid(ids); document.getElementById('page-title').textContent = `標籤: #${tag}`; switchView('home-view'); if (window.innerWidth < 768) toggleSidebar(false); return; }
             
-            // Editor Actions
-            if (closest('#save-btn')) saveArticle();
-            if (closest('#cancel-btn')) closeEditor();
-            if (closest('#delete-btn')) deleteArticle(closest('#delete-btn').dataset.id);
-            if (closest('.tag-pill button')) { closest('.tag-pill').remove(); setEditorDirty(true); }
-            if (closest('#editor-tab-edit')) setupEditorTabs('edit');
-            if (closest('#editor-tab-preview')) setupEditorTabs('preview');
-            if (closest('#toggle-settings')) { const content = document.getElementById('editor-settings-content'); const icon = document.getElementById('toggle-settings-icon'); const isHidden = content.style.display === 'none'; content.style.display = isHidden ? 'block' : 'none'; icon.style.transform = `rotate(${isHidden ? 0 : 180}deg)`; }
+            if (closest('#save-btn')) { saveArticle(); return; }
+            if (closest('#cancel-btn') || closest('#close-editor-btn')) { closeEditor(); return; }
+            if (closest('#delete-btn')) { deleteArticle(closest('#delete-btn').dataset.id); return; }
+            if (closest('.tag-pill button')) { closest('.tag-pill').remove(); setEditorDirty(true); return; }
+            if (closest('#editor-tab-edit')) { setupEditorTabs('edit'); return; }
+            if (closest('#editor-tab-preview')) { setupEditorTabs('preview'); return; }
+            if (closest('#toggle-settings')) { const content = document.getElementById('editor-settings-content'); const icon = document.getElementById('toggle-settings-icon'); const isHidden = content.style.display === 'none'; content.style.display = isHidden ? 'block' : 'none'; icon.style.transform = `rotate(${isHidden ? 0 : 180}deg)`; return; }
 
-            // Tag Manager Actions
-            if (closest('#add-new-tag-btn')) { const name = document.getElementById('new-tag-name').value.trim(); const color = document.getElementById('new-tag-color').value; if(name) { appState.tagColors[name] = color; saveTagColors().then(() => { document.getElementById('new-tag-name').value = ''; showToast(`已新增標籤: ${name}`, 'success'); renderTagManager(); processData(); }); } }
-            if (closest('#save-tag-colors')) { const colors = {}; document.querySelectorAll('.tag-color-input').forEach(i => colors[i.dataset.tag] = i.value); appState.tagColors = colors; saveTagColors(); }
+            if (closest('#add-new-tag-btn')) { const name = document.getElementById('new-tag-name').value.trim(); const color = document.getElementById('new-tag-color').value; if(name && !appState.allTags.has(name)) { appState.tagColors[name] = color; saveTagColors(true); } else { showToast(name ? '標籤已存在' : '請輸入標籤名稱', 'error');} return; }
+            if (closest('#save-tag-colors')) { const colors = {}; document.querySelectorAll('.tag-color-input').forEach(i => colors[i.dataset.tag] = i.value); appState.tagColors = colors; saveTagColors(true); return; }
             const deleteTagBtn = closest('.delete-tag-btn');
-            if (deleteTagBtn) { const tag = deleteTagBtn.dataset.tag; showConfirmation(`確定刪除標籤 "${tag}"?`, '相關文章中的此標籤也會被移除。', () => { delete appState.tagColors[tag]; const updates = {}; Object.values(appState.articles).forEach(art => { if ((art.tags || []).includes(tag)) { updates[`/blogData/articles/${art.id}/tags`] = art.tags.filter(t => t !== tag); } }); update(ref(db), updates).then(() => { saveTagColors(); showToast('標籤已刪除', 'success'); }); }); }
+            if (deleteTagBtn) { const tag = deleteTagBtn.dataset.tag; showConfirmation(`確定刪除標籤 "${tag}"?`, '相關文章中的此標籤也會被移除。', () => { delete appState.tagColors[tag]; const updates = {}; Object.values(appState.articles).forEach(art => { if ((art.tags || []).includes(tag)) { updates[`/blogData/articles/${art.id}/tags`] = art.tags.filter(t => t !== tag); } }); update(ref(db), updates).then(() => { saveTagColors(false); showToast('標籤已刪除', 'success'); }); }); return; }
             const paletteColor = closest('.palette-color');
-            if (paletteColor) { document.getElementById('new-tag-color').value = paletteColor.dataset.color; document.querySelectorAll('.palette-color').forEach(el => el.classList.remove('ring-2', 'ring-sky-500')); paletteColor.classList.add('ring-2', 'ring-sky-500'); }
+            if (paletteColor) { document.getElementById('new-tag-color').value = paletteColor.dataset.color; document.querySelectorAll('.palette-color').forEach(el => el.classList.remove('ring-2', 'ring-sky-500')); paletteColor.classList.add('ring-2', 'ring-sky-500'); return; }
 
-            // Confirmation Modal
-            if (closest('#confirm-action-btn')) { confirmationCallback && confirmationCallback(); }
-            if (closest('#confirm-cancel-btn')) { document.getElementById('confirmation-modal').style.display = 'none'; }
+            if (closest('#confirm-action-btn')) { confirmationCallback && confirmationCallback(); return; }
+            if (closest('#confirm-cancel-btn')) { document.getElementById('confirmation-modal').style.display = 'none'; return; }
 
-            // Theme Toggle & Admin Mode
-            if (closest('#theme-toggle')) { const isDark = !document.documentElement.classList.contains('dark'); localStorage.setItem('theme', isDark ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', isDark); document.getElementById('hl-light').disabled = isDark; document.getElementById('hl-dark').disabled = !isDark; if(editor) editor.setTheme(isDark ? 'dark' : 'light'); }
-            if (closest('#copyright-info')) { const p = prompt('Admin Password:'); if (p === "980621") toggleAdminMode(!appState.isEditMode); else if (p) { showToast('密碼錯誤！', 'error'); } }
+            if (closest('#theme-toggle')) { const isDark = !document.documentElement.classList.contains('dark'); localStorage.setItem('theme', isDark ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', isDark); document.getElementById('hl-light').disabled = isDark; document.getElementById('hl-dark').disabled = !isDark; if(editor) editor.setTheme(isDark ? 'dark' : 'light'); return; }
+            if (closest('#copyright-info')) { const p = prompt('Admin Password:'); if (p === "980621") toggleAdminMode(!appState.isEditMode); else if (p) { showToast('密碼錯誤！', 'error'); } return; }
         });
         
         document.getElementById('sort-order').addEventListener('change', sortArticles);
@@ -465,7 +463,12 @@
         palette.innerHTML = TAG_PALETTE.map(c => `<div class="palette-color h-8 w-8 rounded-full cursor-pointer" data-color="${c}" style="background-color:${c}"></div>`).join('');
         palette.firstChild.classList.add('ring-2', 'ring-sky-500');
         
-        async function saveTagColors() { await set(ref(db, 'blogData/tagColors'), appState.tagColors); showToast('顏色已儲存', 'success'); loadData(); }
+        async function saveTagColors(redirect = false) { 
+            await set(ref(db, 'blogData/tagColors'), appState.tagColors); 
+            showToast('標籤資料已更新', 'success'); 
+            await loadData();
+            if (redirect) { switchView('home-view'); } else { renderTagManager(); }
+        }
         
         window.addEventListener('beforeunload', (e) => { if (editorIsDirty) { e.preventDefault(); e.returnValue = ''; } });
     });
