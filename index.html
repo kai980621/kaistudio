@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAI Studio - 專業版</title>
+    <title>KAI Studio</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
 
@@ -19,7 +19,7 @@
 
     <!-- Fonts & Styles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
@@ -151,6 +151,10 @@
         sortArticles();
         renderPopularTags();
     }
+
+    function processTags() { appState.allTags.clear(); Object.values(appState.articles).forEach(a => (a.tags || []).forEach(t => appState.allTags.set(t, (appState.allTags.get(t) || 0) + 1))); }
+    function sortArticles() { const sortMethod = document.getElementById('sort-order').value; appState.sortedIds.sort((a, b) => { const artA = appState.articles[a], artB = appState.articles[b]; if (sortMethod === 'oldest') return new Date(artA.date) - new Date(artB.date); if (sortMethod === 'views') return (artB.viewCount || 0) - (artA.viewCount || 0); return new Date(artB.date) - new Date(artA.date); }); document.getElementById('page-title').textContent = { newest: '最新文章', oldest: '最舊文章', views: '最多觀看文章' }[sortMethod] || '最新文章'; renderArticleGrid(); }
+    function setupSearch() { searchIndex = lunr(function () { this.ref('id'); this.field('title', { boost: 10 }); this.field('content'); this.field('tags', { boost: 5 }); Object.keys(appState.articles).forEach(id => this.add({ id, ...appState.articles[id], tags: (appState.articles[id].tags || []).join(' ') })); }); }
     
     function renderArticleGrid(ids = appState.sortedIds) {
         const grid = document.getElementById('article-grid');
@@ -341,7 +345,8 @@
             delete appState.articles[id];
             processData();
             showToast('文章已刪除', 'success');
-            if (document.getElementById('editor-overlay').style.display === 'flex') {
+            document.getElementById('confirmation-modal').style.display = 'none';
+            if (document.getElementById('editor-overlay').style.display === 'flex' && document.getElementById('save-btn').dataset.id === id) {
                 closeEditor();
             }
         });
@@ -445,12 +450,12 @@
             if (paletteColor) { document.getElementById('new-tag-color').value = paletteColor.dataset.color; document.querySelectorAll('.palette-color').forEach(el => el.classList.remove('ring-2', 'ring-sky-500')); paletteColor.classList.add('ring-2', 'ring-sky-500'); }
 
             // Confirmation Modal
-            if (closest('#confirm-action-btn')) confirmationCallback && confirmationCallback();
-            if (closest('#confirm-cancel-btn') || !closest('#confirmation-modal > div')) document.getElementById('confirmation-modal').style.display = 'none';
+            if (closest('#confirm-action-btn')) { confirmationCallback && confirmationCallback(); }
+            if (closest('#confirm-cancel-btn')) { document.getElementById('confirmation-modal').style.display = 'none'; }
 
             // Theme Toggle & Admin Mode
             if (closest('#theme-toggle')) { const isDark = !document.documentElement.classList.contains('dark'); localStorage.setItem('theme', isDark ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', isDark); document.getElementById('hl-light').disabled = isDark; document.getElementById('hl-dark').disabled = !isDark; if(editor) editor.setTheme(isDark ? 'dark' : 'light'); }
-            if (closest('#copyright-info')) { const p = prompt('Admin Password:'); if (p === "980621") toggleAdminMode(!appState.isEditMode); else if (p) alert('密碼錯誤！'); }
+            if (closest('#copyright-info')) { const p = prompt('Admin Password:'); if (p === "980621") toggleAdminMode(!appState.isEditMode); else if (p) { showToast('密碼錯誤！', 'error'); } }
         });
         
         document.getElementById('sort-order').addEventListener('change', sortArticles);
