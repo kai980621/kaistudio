@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KAI Studio</title>
+    <title>KAI Studio - 專業版</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
 
     <!-- Libraries -->
-    <script src="https://cdn.tailwindcss.com?plugins=typography,forms,container-queries"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=typography,forms"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link id="hl-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css">
-    <link id="hl-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link id="hl-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" disabled>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
     <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
@@ -19,66 +19,81 @@
 
     <!-- Fonts & Styles -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Noto Sans TC', 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
+        body { font-family: 'Noto Sans TC', 'Inter', sans-serif; }
         .view { display: none; }
         .view.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
         :root { --scrollbar-thumb: #a0aec0; --scrollbar-track: #edf2f7; }
         html.dark { --scrollbar-thumb: #4a5568; --scrollbar-track: #1a202c; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
         ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
-        html.dark ::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
+        
         mark { background-color: #fef08a; padding: 0.1em 0.2em; border-radius: 3px; }
         html.dark mark { background-color: #a16207; color: #fefce8; }
+        
         .form-input, .form-select { @apply focus:ring-2 focus:ring-sky-500 focus:border-sky-500; }
-        .toastui-editor-defaultUI { background: white; color: #1f2937; }
-        html.dark .toastui-editor-defaultUI { background: #1f2937; color: #f3f4f6; }
-        .toastui-editor-md-container { background: inherit; color: inherit; }
+        
+        .toastui-editor-defaultUI { background-color: white; }
+        html.dark .toastui-editor-defaultUI { background-color: #1f2937; }
+        
+        /* Mobile editor tab styles */
         .editor-pane-hidden { display: none !important; }
         .editor-tab.active { @apply bg-sky-600 text-white; }
         .editor-tab { @apply flex-1 text-center py-3 font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 transition-colors; }
+        
+        /* Active nav link style */
         .nav-link.active-nav { @apply bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300 font-semibold; }
+        
+        /* Toast notification styles */
         #toast-container { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.75rem; }
         .toast { padding: 1rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); color: white; opacity: 0; transform: translateX(100%); animation: toastInRight 0.5s forwards; display: flex; align-items: center; gap: 0.75rem; }
         .toast.success { background-color: #22c55e; } .toast.error { background-color: #ef4444; } .toast.info { background-color: #3b82f6; }
         @keyframes toastInRight { to { opacity: 1; transform: translateX(0); } }
-        /* [FIX 2] Hamburger/Close Icon Transition */
-        #sidebar-toggle .icon-menu, #sidebar-toggle .icon-close { transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; }
+        
+        /* Hamburger/Close Icon Transition */
+        #sidebar-toggle .icon-menu, #sidebar-toggle .icon-close { transition: transform 0.3s ease-in-out, opacity 0.2s ease-in-out; }
         html.sidebar-open #sidebar-toggle .icon-menu { transform: rotate(90deg); opacity: 0; }
         html:not(.sidebar-open) #sidebar-toggle .icon-close { transform: rotate(-90deg); opacity: 0; }
+        .editor-dirty-indicator { width:8px; height:8px; border-radius:50%; display:inline-block; margin-left:6px }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 antialiased">
     <div id="toast-container"></div>
     <script> (function() { const theme = localStorage.getItem('theme'); if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) { document.documentElement.classList.add('dark'); } })(); </script>
 
 <div class="relative min-h-screen md:flex">
     <div id="sidebar-backdrop" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden"></div>
-    <aside id="sidebar" class="w-72 bg-white dark:bg-gray-800 h-screen p-6 border-r border-gray-200 dark:border-gray-700 fixed top-0 left-0 z-40 transition-transform duration-300 flex-col flex -translate-x-full md:translate-x-0">
+    <aside id="sidebar" class="w-72 bg-white dark:bg-gray-800 h-screen p-6 border-r border-gray-200 dark:border-gray-700 fixed top-0 left-0 z-40 transition-transform duration-300 flex flex-col -translate-x-full md:translate-x-0">
         <div class="text-center mb-6"><h1 id="site-title-sidebar" class="text-3xl font-bold text-sky-600 dark:text-sky-400 cursor-pointer">🌐 KAI STUDIO</h1><p class="text-sm text-gray-500 dark:text-gray-400 mt-2">探索音樂的無限可能。</p></div>
         <div class="relative mb-4"><input type="search" id="search-input" placeholder="搜尋文章..." class="w-full pl-10 pr-4 py-2 rounded-full bg-gray-200 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-400 border-transparent outline-none focus:ring-2 focus:ring-sky-500"><svg class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg></div>
         <div class="mb-4"><label for="sort-order" class="text-xs font-bold uppercase text-gray-500 dark:text-gray-400">排序方式</label><select id="sort-order" class="form-select mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-gray-200 shadow-sm text-sm"><option value="newest">最新日期</option><option value="oldest">最舊日期</option><option value="views">最多觀看</option></select></div>
         <div class="mb-4"><h3 class="text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-2">熱門標籤</h3><div id="popular-tags-container" class="flex flex-wrap gap-2"></div></div>
-        <nav class="flex-grow space-y-2" id="main-nav"><a href="#" data-nav="home" class="nav-link flex items-center space-x-3 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"><span>🏠</span><span>首頁</span></a><a href="#" data-nav="tags" class="nav-link flex items-center space-x-3 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"><span>🏷️</span><span>所有標籤</span></a><a href="#" data-nav="new-article" id="new-article-link" class="nav-link flex items-center space-x-3 py-2 px-4 rounded-lg bg-sky-600 text-white hover:bg-sky-700"><span>➕</span><span>新增文章</span></a><a href="#" data-nav="tag-manager" id="tag-manager-link" class="nav-link flex items-center space-x-3 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"><span>🎨</span><span>管理標籤</span></a></nav>
-        <div id="admin-toolbar" class="mt-6 space-y-2"><button id="export-json" class="w-full text-sm py-2 px-3 rounded-md border border-gray-300 dark:border-gray-600">匯出 JSON</button><label class="w-full text-sm py-2 px-3 rounded-md bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 cursor-pointer text-center">匯入 JSON<input type="file" id="import-json-input" accept="application/json" class="hidden"></label><div class="text-xs text-gray-400 mt-1">管理模式工具列</div></div>
+        <nav class="flex-grow space-y-2" id="main-nav">
+            <a href="#" data-nav="home" class="nav-link flex items-center space-x-3 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"><span>🏠</span><span>首頁</span></a>
+            <a href="#" data-nav="tags" class="nav-link flex items-center space-x-3 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"><span>🏷️</span><span>所有標籤</span></a>
+            <a href="#" data-nav="new-article" id="new-article-link" class="nav-link hidden items-center space-x-3 py-2 px-4 rounded-lg bg-sky-600 text-white hover:bg-sky-700"><span>➕</span><span>新增文章</span></a>
+            <a href="#" data-nav="tag-manager" id="tag-manager-link" class="nav-link hidden items-center space-x-3 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"><span>🎨</span><span>管理標籤</span></a>
+        </nav>
+        <div id="admin-toolbar" class="mt-6 space-y-2 hidden"><button id="export-json" class="w-full text-sm py-2 px-3 rounded-md border border-gray-300 dark:border-gray-600">匯出 JSON</button><label class="w-full text-sm py-2 px-3 rounded-md bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 cursor-pointer text-center">匯入 JSON<input type="file" id="import-json-input" accept="application/json" class="hidden"></label><div class="text-xs text-gray-400 mt-1">管理模式工具列</div></div>
         <div class="text-center space-y-4 mt-6">
             <button id="theme-toggle" aria-label="Toggle theme" class="mx-auto w-14 h-8 flex items-center bg-gray-300 dark:bg-gray-600 rounded-full p-1 duration-300 ease-in-out"><div class="bg-white w-6 h-6 rounded-full shadow-md transform duration-300 ease-in-out dark:translate-x-6 flex items-center justify-center text-xs"><span class="dark:hidden">🌙</span><span class="hidden dark:inline">☀️</span></div></button>
-            <p id="copyright-info" class="text-gray-400 text-xs">© 2025 KAI Studio. All rights reserved.</p>
+            <p id="copyright-info" class="text-gray-400 text-xs cursor-pointer">© 2025 KAI Studio. All rights reserved.</p>
         </div>
     </aside>
 
     <main id="main-content" class="flex-1 transition-all duration-300 md:ml-72">
         <header class="sticky top-0 z-20 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-md flex items-center justify-between p-4 border-b dark:border-gray-700 mb-6">
-            <!-- [FIX 2] Hamburger to X button -->
             <button id="sidebar-toggle" class="p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 md:hidden relative h-6 w-6">
                 <svg class="icon-menu absolute inset-0 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 <svg class="icon-close absolute inset-0 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
+            <h2 id="header-title" class="text-xl font-bold md:hidden">最新文章</h2>
             <div class="flex-grow"></div>
         </header>
         
@@ -92,12 +107,12 @@
     </main>
 </div>
 
-<!-- All modals are the same as before -->
-<div id="editor-overlay" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-0 md:p-4"><div class="bg-white dark:bg-gray-800 rounded-none md:rounded-lg shadow-2xl w-full h-full flex flex-col overflow-hidden"><div id="editor-settings-wrapper" class="w-full md:w-96 md:flex-shrink-0 border-b md:border-b-0 md:border-r dark:border-gray-700"><div class="flex justify-between items-center p-4 border-b dark:border-gray-700 md:border-b-0"><h3 class="text-xl font-bold">文章設定 <span id="dirty-indicator" class="editor-dirty-indicator bg-gray-400"></span></h3><button id="toggle-settings" class="md:hidden text-gray-500 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"><svg id="toggle-settings-icon" class="w-5 h-5 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" /></svg></button></div><div id="editor-settings-content" class="p-4 space-y-4 overflow-y-auto"><div><label for="editor-title" class="block text-sm font-medium mb-1">標題</label><input type="text" id="editor-title" class="form-input block w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"></div><div><label for="editor-date" class="block text-sm font-medium mb-1">發布日期</label><input type="date" id="editor-date" class="form-input block w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"></div><div><label class="block text-sm font-medium mb-1">標籤</label><div id="tags-input-container" class="form-input flex flex-wrap gap-2 items-center dark:bg-gray-700 dark:border-gray-600"><input type="text" id="tags-input" class="flex-grow bg-transparent border-none focus:ring-0 p-0 dark:text-gray-200 dark:placeholder-gray-400" placeholder="輸入後按 Enter..."></div></div><div><label class="block text-sm font-medium mb-1">封面圖片</label><div class="mt-1"><img id="cover-preview" class="w-full aspect-video object-cover rounded bg-gray-200 dark:bg-gray-700 hidden mb-2"><input type="text" id="editor-cover-image-url" class="form-input w-full mb-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" placeholder="貼上 URL 或上傳"><label for="cover-upload" class="cursor-pointer bg-sky-500 text-white text-center py-2 px-4 rounded-md hover:bg-sky-600 w-full inline-block">上傳圖片</label><input type="file" id="cover-upload" class="hidden" accept="image/*"><div id="upload-progress-container" class="w-full bg-gray-200 rounded-full h-2.5 mt-2 hidden"><div id="upload-progress-bar" class="bg-sky-600 h-2.5 rounded-full" style="width: 0%"></div></div></div></div></div></div><div class="flex-grow flex flex-col min-h-0"><div class="md:hidden flex border-b dark:border-gray-700 flex-shrink-0"><button id="editor-tab-edit" class="editor-tab active">編輯</button><button id="editor-tab-preview" class="editor-tab">預覽</button></div><div id="editor-container" class="flex-grow relative min-h-0"></div><div class="flex-shrink-0 p-4 bg-gray-50 dark:bg-gray-900 border-t dark:border-gray-700 flex justify-between items-center"><button id="delete-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">刪除</button><div class="space-x-4"><button id="cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-4 py-2 rounded-lg hover:bg-gray-300">取消</button><button id="save-btn" class="bg-sky-600 text-white px-6 py-2 rounded-lg hover:bg-sky-700">儲存</button></div></div></div></div></div>
+<!-- Editor Modal -->
+<div id="editor-overlay" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-0 md:p-4"><div class="bg-white dark:bg-gray-800 rounded-none md:rounded-lg shadow-2xl w-full h-full flex flex-col md:flex-row overflow-hidden"><div id="editor-settings-wrapper" class="w-full md:w-96 md:flex-shrink-0 border-b md:border-b-0 md:border-r dark:border-gray-700"><div class="flex justify-between items-center p-4 border-b dark:border-gray-700"><h3 class="text-xl font-bold">文章設定 <span id="dirty-indicator" class="editor-dirty-indicator bg-gray-400"></span></h3><button id="toggle-settings" class="md:hidden text-gray-500 p-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700"><svg id="toggle-settings-icon" class="w-5 h-5 transition-transform" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" /></svg></button></div><div id="editor-settings-content" class="p-4 space-y-4 overflow-y-auto"><div><label for="editor-title" class="block text-sm font-medium mb-1">標題</label><input type="text" id="editor-title" class="form-input block w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"></div><div><label for="editor-date" class="block text-sm font-medium mb-1">發布日期</label><input type="date" id="editor-date" class="form-input block w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"></div><div><label class="block text-sm font-medium mb-1">標籤</label><div id="tags-input-container" class="form-input flex flex-wrap gap-2 items-center dark:bg-gray-700 dark:border-gray-600"><input type="text" id="tags-input" class="flex-grow bg-transparent border-none focus:ring-0 p-0 dark:text-gray-200 dark:placeholder-gray-400" placeholder="輸入後按 Enter..."></div></div><div><label class="block text-sm font-medium mb-1">封面圖片</label><div class="mt-1"><img id="cover-preview" class="w-full aspect-video object-cover rounded bg-gray-200 dark:bg-gray-700 hidden mb-2"><input type="text" id="editor-cover-image-url" class="form-input w-full mb-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200" placeholder="貼上 URL 或上傳"><label for="cover-upload" class="cursor-pointer bg-sky-500 text-white text-center py-2 px-4 rounded-md hover:bg-sky-600 w-full inline-block">上傳圖片</label><input type="file" id="cover-upload" class="hidden" accept="image/*"><div id="upload-progress-container" class="w-full bg-gray-200 rounded-full h-2.5 mt-2 hidden"><div id="upload-progress-bar" class="bg-sky-600 h-2.5 rounded-full" style="width: 0%"></div></div></div></div></div></div><div class="flex-grow flex flex-col min-h-0"><div class="md:hidden flex border-b dark:border-gray-700 flex-shrink-0"><button id="editor-tab-edit" class="editor-tab active">編輯</button><button id="editor-tab-preview" class="editor-tab">預覽</button></div><div id="editor-container" class="flex-grow relative min-h-0"></div><div class="flex-shrink-0 p-4 bg-gray-50 dark:bg-gray-900 border-t dark:border-gray-700 flex justify-between items-center"><button id="delete-btn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">刪除</button><div class="space-x-4"><button id="cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-4 py-2 rounded-lg hover:bg-gray-300">取消</button><button id="save-btn" class="bg-sky-600 text-white px-6 py-2 rounded-lg hover:bg-sky-700">儲存</button></div></div></div></div></div>
 <div id="confirmation-modal" class="fixed inset-0 bg-black/60 z-[60] hidden items-center justify-center"><div class="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 w-11/12 max-w-sm text-center"><h3 id="confirmation-title" class="text-xl font-bold mb-4"></h3><p id="confirmation-message" class="text-gray-600 dark:text-gray-300 mb-6"></p><div class="flex justify-center space-x-4"><button id="confirm-cancel-btn" class="bg-gray-200 dark:bg-gray-600 px-6 py-2 rounded-lg hover:bg-gray-300">取消</button><button id="confirm-action-btn" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600">確定</button></div></div></div>
 
 <script type="module">
-    // Firebase Config (unchanged)
+    // Firebase Config
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
     import { getDatabase, ref, set, get, remove, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
     import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-storage.js";
@@ -106,21 +121,18 @@
     const db = getDatabase(app);
     const storage = getStorage(app);
 
-    // Global state and constants (unchanged)
+    // Global state and constants
     let appState = { articles: {}, allTags: new Map(), tagColors: {}, isEditMode: false, currentArticleId: null, sortedIds: [] };
     let editor; let searchIndex; let confirmationCallback = null; let editorIsDirty = false;
     const TAG_PALETTE = ['#f87171', '#fb923c', '#facc15', '#4ade80', '#38bdf8', '#818cf8', '#c084fc', '#f472b6', '#737373', '#0d9488'];
 
-    // UI elements mapping (simplified for clarity, unchanged in code)
-    const ui = { /* ... */ };
-
-    // Helper functions (unchanged)
+    // Helper functions
     const getTextColorForBg = hex => { const [r, g, b] = hex.slice(1).match(/.{2}/g).map(c => parseInt(c, 16)); return (0.299 * r + 0.587 * g + 0.114 * b) > 150 ? '#1f2937' : '#ffffff'; };
     const getTagColor = tag => appState.tagColors[tag] || TAG_PALETTE[[...tag].reduce((a, c) => c.charCodeAt(0) + a, 0) % TAG_PALETTE.length];
-    const showToast = (message, type = 'info') => { const c = document.getElementById('toast-container'), t = document.createElement('div'); t.className = `toast ${type}`; t.textContent = message; c.appendChild(t); setTimeout(() => t.remove(), 4000); };
+    const showToast = (message, type = 'info') => { const c = document.getElementById('toast-container'), t = document.createElement('div'); t.className = `toast ${type}`; t.innerHTML = `<span>${message}</span>`; c.appendChild(t); setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; setTimeout(() => t.remove(), 500); }, 3000); };
     const formatDate = dateStr => new Date(dateStr).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
     
-    // Core Functions (with fixes)
+    // Core Functions
     async function loadData() {
         switchView('loading-view');
         try {
@@ -140,55 +152,199 @@
         renderPopularTags();
     }
     
-    // [FIX 3] Delegated event handlers for article grid
-    function setupArticleGridListeners() {
-        const grid = document.getElementById('article-grid');
-        grid.addEventListener('click', (e) => {
-            const target = e.target;
-            const articleCard = target.closest('.article-card');
-            if (!articleCard) return;
-
-            const articleId = articleCard.dataset.id;
-            
-            if (target.closest('.card-edit-btn')) {
-                openEditor(articleId);
-            } else if (target.closest('.card-copy-btn')) {
-                copyArticle(articleId);
-            } else if (target.closest('.card-delete-btn')) {
-                deleteArticle(articleId);
-            } else if (target.closest('.card-link')) {
-                renderArticle(articleId);
-            }
-        });
-    }
-    
     function renderArticleGrid(ids = appState.sortedIds) {
         const grid = document.getElementById('article-grid');
-        grid.innerHTML = ids.length === 0 ? `<p class="text-gray-500 col-span-full text-center">找不到文章。</p>` : ids.map(id => {
+        grid.innerHTML = ids.length === 0 ? `<p class="text-gray-500 col-span-full text-center py-10">找不到文章。</p>` : ids.map(id => {
             const article = appState.articles[id]; if (!article) return '';
             const tagsHtml = (article.tags || []).map(tag => `<span class="text-xs font-semibold py-1 px-2 uppercase rounded-full" style="background-color:${getTagColor(tag)}; color:${getTextColorForBg(getTagColor(tag))};">${tag}</span>`).join(' ');
             const cover = article.coverImage || `https://placehold.co/600x400/0ea5e9/ffffff?text=${encodeURIComponent(article.title)}`;
-            // [FIX 3] Added `card-link` class to title and image link for specific targeting
             return `<div class="article-card bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transform hover:-translate-y-2 transition-all duration-300 group flex flex-col" data-id="${id}">
                 <a href="#" class="card-link block relative">
                     <img src="${cover}" alt="${article.title}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
                 </a>
                 <div class="p-6 relative flex-grow flex flex-col">
-                    <div class="min-h-[64px] mb-2">
-                        <h3 class="text-lg font-bold">
-                           <a href="#" class="card-link group-hover:text-sky-500 dark:group-hover:text-sky-400">${article.title}</a>
-                        </h3>
-                    </div>
+                    <div class="min-h-[56px] mb-2"><h3 class="text-lg font-bold"><a href="#" class="card-link group-hover:text-sky-500 dark:group-hover:text-sky-400">${article.title}</a></h3></div>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">${formatDate(article.date)}</p>
-                    <div class="flex flex-wrap gap-2 mt-auto">${tagsHtml}</div>
+                    <div class="flex flex-wrap gap-2 mt-auto pt-2">${tagsHtml}</div>
                 </div>
-                ${appState.isEditMode ? `<div class="absolute top-2 right-2 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button class="card-edit-btn bg-sky-500 text-white rounded-full p-2.5 shadow-lg" title="編輯">✏️</button>
-                    <button class="card-copy-btn bg-green-500 text-white rounded-full p-2.5 shadow-lg" title="複製">📄</button>
-                    <button class="card-delete-btn bg-red-500 text-white rounded-full p-2.5 shadow-lg" title="刪除">🗑️</button>
+                ${appState.isEditMode ? `<div class="absolute top-2 right-2 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <button class="card-edit-btn bg-sky-500 text-white rounded-full p-2.5 shadow-lg hover:bg-sky-600 transition-colors" title="編輯">✏️</button>
+                    <button class="card-copy-btn bg-green-500 text-white rounded-full p-2.5 shadow-lg hover:bg-green-600 transition-colors" title="複製">📄</button>
+                    <button class="card-delete-btn bg-red-500 text-white rounded-full p-2.5 shadow-lg hover:bg-red-600 transition-colors" title="刪除">🗑️</button>
                 </div>` : ''}
             </div>`;
         }).join('');
+    }
+
+    async function renderArticle(id) {
+        appState.currentArticleId = id; const article = appState.articles[id];
+        if (!article) { switchView('home-view'); return; }
+        if (!sessionStorage.getItem(`viewed_${id}`)) {
+            sessionStorage.setItem(`viewed_${id}`, 'true');
+            const newCount = (article.viewCount || 0) + 1;
+            await update(ref(db, `blogData/articles/${id}`), { viewCount: newCount }).catch(e => console.warn('Failed to update view count', e));
+            article.viewCount = newCount;
+        }
+        const contentHtml = marked.parse((article.content || '').replace(/==([^=]+)==/g, '<mark>$1</mark>'));
+        const view = document.getElementById('article-view');
+        view.innerHTML = `<div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-4 sm:p-8 rounded-xl shadow-md">
+            <button class="back-to-list-btn text-sky-600 dark:text-sky-400 hover:underline mb-6">← 返回列表</button>
+            <h1 class="text-3xl md:text-5xl font-bold mb-4">${article.title}</h1>
+            <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-500 dark:text-gray-400 mb-6 pb-6 border-b dark:border-gray-600">
+                <span>📅 ${formatDate(article.date)}</span><span>👁️ ${article.viewCount || 1} 次檢視</span>
+            </div>
+            ${article.coverImage ? `<img src="${article.coverImage}" class="w-full rounded-lg mb-8 aspect-video object-cover shadow-sm">` : ''}
+            <div class="prose dark:prose-invert max-w-none">${contentHtml}</div>
+        </div>`;
+        view.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+        switchView('article-view');
+    }
+
+    function renderAllTagsPage() {
+        const container = document.getElementById('tags-container');
+        const sortedTags = [...appState.allTags.entries()].sort((a, b) => b[1] - a[1]);
+        container.innerHTML = sortedTags.map(([tag, count]) => `<button class="tag-filter-btn font-semibold py-2 px-4 rounded-full transition-transform hover:scale-105" style="background-color:${getTagColor(tag)}; color:${getTextColorForBg(getTagColor(tag))};" data-tag="${tag}">${tag} <span class="ml-2 text-xs opacity-75">${count}</span></button>`).join('');
+    }
+
+    function renderPopularTags() {
+        const container = document.getElementById('popular-tags-container');
+        const sortedTags = [...appState.allTags.entries()].sort((a, b) => b[1] - a[1]).slice(0, 7);
+        container.innerHTML = sortedTags.map(([tag]) => `<button class="tag-filter-btn text-xs font-semibold py-1 px-2 rounded-full" style="background-color: ${getTagColor(tag)}; color: ${getTextColorForBg(getTagColor(tag))};" data-tag="${tag}">${tag}</button>`).join('');
+    }
+
+    function renderTagManager() {
+        const container = document.getElementById('tag-manager-container');
+        const sortedTags = [...appState.allTags.keys()].sort();
+        container.innerHTML = sortedTags.map(tag => `
+            <div class="flex items-center justify-between p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+                <div class="flex items-center gap-3">
+                    <input type="color" value="${getTagColor(tag)}" data-tag="${tag}" class="tag-color-input w-10 h-10 p-1 bg-white dark:bg-gray-700 rounded-md cursor-pointer border-gray-300 dark:border-gray-600">
+                    <span class="font-medium">${tag}</span>
+                </div>
+                <button class="delete-tag-btn text-red-500 hover:text-red-700 p-2" data-tag="${tag}">🗑️</button>
+            </div>`).join('');
+    }
+
+    function openEditor(id = null) {
+        if (editor) editor.destroy();
+        editor = new toastui.Editor({
+            el: document.getElementById('editor-container'),
+            height: '100%',
+            initialEditType: 'markdown',
+            previewStyle: window.innerWidth >= 768 ? 'vertical' : 'tab',
+            theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
+            toolbarItems: [['heading', 'bold', 'italic'], ['ul', 'ol'], ['image', 'link'], ['code', 'codeblock']],
+            hooks: {
+                addImageBlobHook: (blob, callback) => {
+                    const fileRef = storageRef(storage, `images/${Date.now()}_${blob.name || 'pasted.png'}`);
+                    const uploadTask = uploadBytesResumable(fileRef, blob);
+                    uploadTask.on('state_changed', ()=>{}, error => { showToast('圖片上傳失敗', 'error'); callback('', 'image'); }, 
+                        () => getDownloadURL(uploadTask.snapshot.ref).then(url => callback(url, 'image'))
+                    );
+                    return false;
+                }
+            }
+        });
+        editor.on('change', () => setEditorDirty(true));
+        
+        resetEditorForm();
+        const article = id ? appState.articles[id] : null;
+        if (article) {
+            document.getElementById('editor-title').value = article.title || '';
+            document.getElementById('editor-date').value = article.date ? article.date.split('T')[0] : '';
+            document.getElementById('editor-cover-image-url').value = article.coverImage || '';
+            updateCoverPreview(article.coverImage);
+            (article.tags || []).forEach(createTagPill);
+            editor.setMarkdown(article.content || '');
+            document.getElementById('save-btn').dataset.id = id;
+            setEditorDirty(false);
+        } else {
+            document.getElementById('editor-date').value = new Date().toISOString().split('T')[0];
+            delete document.getElementById('save-btn').dataset.id;
+            setEditorDirty(true);
+        }
+        document.getElementById('delete-btn').dataset.id = id;
+        document.getElementById('delete-btn').style.display = id ? 'block' : 'none';
+        
+        if (window.innerWidth < 768) {
+            setupEditorTabs('edit');
+            document.getElementById('editor-settings-content').style.display = 'none';
+            document.getElementById('toggle-settings-icon').style.transform = 'rotate(180deg)';
+        } else {
+            document.getElementById('editor-settings-content').style.display = 'block';
+        }
+        
+        document.getElementById('editor-overlay').style.display = 'flex';
+        document.body.classList.add('overflow-hidden');
+    }
+
+    async function saveArticle() {
+        const btn = document.getElementById('save-btn');
+        const id = btn.dataset.id || `post_${Date.now()}`;
+        btn.disabled = true; btn.textContent = '儲存中...';
+
+        let coverImageUrl = document.getElementById('editor-cover-image-url').value.trim();
+        const file = document.getElementById('cover-upload').files[0];
+
+        if (file) {
+            try {
+                coverImageUrl = await uploadCoverImage(file, id);
+            } catch (error) {
+                showToast('圖片上傳失敗', 'error');
+                btn.disabled = false; btn.textContent = '儲存';
+                return;
+            }
+        }
+
+        const articleData = {
+            id: id,
+            title: document.getElementById('editor-title').value.trim() || '未命名文章',
+            date: new Date(document.getElementById('editor-date').value).toISOString(),
+            tags: getTagsFromEditor(),
+            coverImage: coverImageUrl,
+            content: editor.getMarkdown(),
+            viewCount: (id && appState.articles[id]?.viewCount) || 0,
+        };
+        
+        try {
+            await set(ref(db, `blogData/articles/${id}`), articleData);
+            appState.articles[id] = articleData; // Update local state immediately
+            processData();
+            showToast('文章已儲存', 'success');
+            setEditorDirty(false);
+            btn.dataset.id = id; // Ensure new post gets an ID for subsequent saves
+            document.getElementById('delete-btn').dataset.id = id;
+            document.getElementById('delete-btn').style.display = 'block';
+        } catch(e) {
+            showToast('儲存失敗', 'error');
+            console.error(e);
+        } finally {
+            btn.disabled = false; btn.textContent = '儲存';
+        }
+    }
+    
+    async function copyArticle(id) {
+        const original = appState.articles[id];
+        if (!original) return;
+        const newId = `post_${Date.now()}`;
+        const newArticle = { ...original, title: `${original.title} (複製)`, id: newId, date: new Date().toISOString() };
+        await set(ref(db, `blogData/articles/${newId}`), newArticle);
+        appState.articles[newId] = newArticle;
+        processData();
+        showToast('文章已複製', 'success');
+    }
+    
+    function deleteArticle(id) {
+        if (!id || !appState.articles[id]) return;
+        showConfirmation(`確定刪除 "${appState.articles[id].title}"?`, '此操作無法復原。', async () => {
+            await remove(ref(db, `blogData/articles/${id}`));
+            delete appState.articles[id];
+            processData();
+            showToast('文章已刪除', 'success');
+            if (document.getElementById('editor-overlay').style.display === 'flex') {
+                closeEditor();
+            }
+        });
     }
 
     function toggleAdminMode(enable) {
@@ -196,82 +352,118 @@
         document.getElementById('new-article-link').style.display = enable ? 'flex' : 'none';
         document.getElementById('tag-manager-link').style.display = enable ? 'flex' : 'none';
         document.getElementById('admin-toolbar').style.display = enable ? 'block' : 'none';
-        renderArticleGrid(); // Re-render to show/hide buttons
+        showToast(enable ? '管理模式已啟用' : '已退出管理模式', 'info');
+        renderArticleGrid();
     }
     
-    function toggleSidebar() {
-        document.documentElement.classList.toggle('sidebar-open');
-        const isOpen = document.documentElement.classList.contains('sidebar-open');
-        document.getElementById('sidebar').classList.toggle('-translate-x-full', !isOpen);
-        document.getElementById('sidebar-backdrop').classList.toggle('hidden', !isOpen);
+    function toggleSidebar(forceState) {
+        const shouldBeOpen = typeof forceState === 'boolean' ? forceState : !document.documentElement.classList.contains('sidebar-open');
+        document.documentElement.classList.toggle('sidebar-open', shouldBeOpen);
+        document.getElementById('sidebar').classList.toggle('-translate-x-full', !shouldBeOpen);
+        document.getElementById('sidebar-backdrop').classList.toggle('hidden', !shouldBeOpen);
         if (window.innerWidth < 768) {
-            document.body.classList.toggle('overflow-hidden', isOpen);
+            document.body.classList.toggle('overflow-hidden', shouldBeOpen);
         }
     }
+    
+    function setupEditorTabs(activeTab) {
+        const editTab = document.getElementById('editor-tab-edit');
+        const previewTab = document.getElementById('editor-tab-preview');
+        const markdownPane = document.querySelector('.toastui-editor-md-container');
+        const previewPane = document.querySelector('.toastui-editor-preview-container');
 
-    // --- Main Initialization ---
-    document.addEventListener('DOMContentLoaded', () => {
-        // [FIX 1] Isolated, reliable theme toggle listener
-        document.getElementById('theme-toggle').addEventListener('click', () => {
-            const isDark = !document.documentElement.classList.contains('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            document.documentElement.classList.toggle('dark', isDark);
-            document.getElementById('hl-light').disabled = isDark;
-            document.getElementById('hl-dark').disabled = !isDark;
-            if (editor) editor.setTheme(isDark ? 'dark' : 'light');
-        });
-
-        // Other dedicated listeners
-        document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
-        document.getElementById('sidebar-backdrop').addEventListener('click', () => toggleSidebar(false));
-        document.getElementById('site-title-sidebar').addEventListener('click', () => {
-             document.getElementById('search-input').value = ''; sortArticles(); switchView('home-view'); if (window.innerWidth < 768) toggleSidebar();
-        });
-        document.getElementById('main-nav').addEventListener('click', e => {
-            const navLink = e.target.closest('.nav-link');
-            if (!navLink) return;
-            e.preventDefault();
-            const nav = navLink.dataset.nav;
-            if (nav === 'home') { sortArticles(); switchView('home-view'); } 
-            else if (nav === 'tags') { renderAllTagsPage(); switchView('tags-view'); } 
-            else if (nav === 'new-article') openEditor(); 
-            else if (nav === 'tag-manager') { renderTagManager(); switchView('tag-manager-view'); }
-            if (window.innerWidth < 768) toggleSidebar();
-        });
-        
-        setupArticleGridListeners();
-        initTagColorPalette();
-
-        if (window.innerWidth >= 768) {
-             document.documentElement.classList.add('sidebar-open');
+        if (activeTab === 'edit') {
+            editTab.classList.add('active');
+            previewTab.classList.remove('active');
+            markdownPane?.classList.remove('editor-pane-hidden');
+            previewPane?.classList.add('editor-pane-hidden');
         } else {
-             toggleAdminMode(false); // Default hide admin buttons on mobile
+            editTab.classList.remove('active');
+            previewTab.classList.add('active');
+            markdownPane?.classList.add('editor-pane-hidden');
+            previewPane?.classList.remove('editor-pane-hidden');
         }
-
-        loadData();
-    });
-
-    // ... The rest of the JS functions (openEditor, saveArticle, etc.) remain largely the same ...
-    // ... For brevity, I am omitting functions that had no logical changes ...
-    function processTags() { appState.allTags.clear(); Object.values(appState.articles).forEach(a => (a.tags || []).forEach(t => appState.allTags.set(t, (appState.allTags.get(t) || 0) + 1))); }
-    function sortArticles() { const sortMethod = document.getElementById('sort-order').value; appState.sortedIds.sort((a, b) => { const artA = appState.articles[a], artB = appState.articles[b]; if (sortMethod === 'oldest') return new Date(artA.date) - new Date(artB.date); if (sortMethod === 'views') return (artB.viewCount || 0) - (artA.viewCount || 0); return new Date(artB.date) - new Date(artA.date); }); document.getElementById('page-title').textContent = { newest: '最新文章', oldest: '最舊文章', views: '最多觀看文章' }[sortMethod] || '最新文章'; renderArticleGrid(); }
-    function setupSearch() { searchIndex = lunr(function () { this.ref('id'); this.field('title', { boost: 10 }); this.field('content'); this.field('tags', { boost: 5 }); Object.values(appState.articles).forEach(doc => this.add({ ...doc, tags: (doc.tags || []).join(' ') })); }); }
-    async function renderArticle(id) { appState.currentArticleId = id; const article = appState.articles[id]; if (!article) { switchView('home-view'); return; } if (!sessionStorage.getItem(`viewed_${id}`)) { sessionStorage.setItem(`viewed_${id}`, 'true'); const newCount = (article.viewCount || 0) + 1; await update(ref(db, `blogData/articles/${id}`), { viewCount: newCount }).catch(e => console.warn('Failed to update view count', e)); article.viewCount = newCount; } const contentHtml = marked.parse((article.content || '').replace(/==([^=]+)==/g, '<mark>$1</mark>')); const view = document.getElementById('article-view'); view.innerHTML = `<div class="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-4 sm:p-8 rounded-xl shadow-md"><button class="back-to-list-btn text-sky-600 dark:text-sky-400 hover:underline mb-6">← 返回列表</button><h1 class="text-3xl md:text-5xl font-bold mb-4">${article.title}</h1><div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-gray-500 dark:text-gray-400 mb-6 pb-6 border-b dark:border-gray-600"><span>📅 ${formatDate(article.date)}</span><span>👁️ ${article.viewCount || 1} 次檢視</span></div>${article.coverImage ? `<img src="${article.coverImage}" class="w-full rounded-lg mb-8 aspect-video object-cover shadow-sm">` : ''}<div class="prose dark:prose-invert max-w-none">${contentHtml}</div></div>`; view.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el)); switchView('article-view'); view.querySelector('.back-to-list-btn').addEventListener('click', ()=>switchView('home-view')); }
-    function renderAllTagsPage() { const container = document.getElementById('tags-container'); const sortedTags = [...appState.allTags.entries()].sort((a, b) => b[1] - a[1]); container.innerHTML = sortedTags.map(([tag, count]) => `<button class="tag-filter-btn font-semibold py-2 px-4 rounded-full transition-transform hover:scale-105" style="background-color:${getTagColor(tag)}; color:${getTextColorForBg(getTagColor(tag))};" data-tag="${tag}">${tag} <span class="ml-2 text-xs opacity-75">${count}</span></button>`).join(''); }
-    function renderPopularTags() { const container = document.getElementById('popular-tags-container'); const sortedTags = [...appState.allTags.entries()].sort((a, b) => b[1] - a[1]).slice(0, 7); container.innerHTML = sortedTags.map(([tag]) => `<button class="tag-filter-btn text-xs font-semibold py-1 px-2 rounded-full" style="background-color: ${getTagColor(tag)}; color: ${getTextColorForBg(getTagColor(tag))};" data-tag="${tag}">${tag}</button>`).join(''); }
-    function renderTagManager() { /* Unchanged */ } function addNewTag() { /* Unchanged */ } function deleteTag() { /* Unchanged */ } function saveTagColors() { /* Unchanged */ }
-    function openEditor(id = null) { if (editor) editor.destroy(); editor = new toastui.Editor({ el: document.getElementById('editor-container'), height: '100%', initialEditType: 'markdown', previewStyle: 'vertical', theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light', toolbarItems: [['heading', 'bold', 'italic'], ['ul', 'ol'], ['image', 'link'], ['code', 'codeblock']], hooks: { addImageBlobHook: (blob, callback) => { const fileRef = storageRef(storage, `images/${Date.now()}_${blob.name || 'pasted.png'}`); const uploadTask = uploadBytesResumable(fileRef, blob); uploadTask.on('state_changed', () => {}, error => { console.error('Upload failed:', error); callback('', 'image'); }, () => { getDownloadURL(uploadTask.snapshot.ref).then(url => callback(url, 'image')); }); return false; } } }); editor.on('change', () => setEditorDirty(true)); resetEditorForm(); const article = id ? appState.articles[id] : null; if (article) { document.getElementById('editor-title').value = article.title || ''; document.getElementById('editor-date').value = article.date ? article.date.split('T')[0] : ''; document.getElementById('editor-cover-image-url').value = article.coverImage || ''; updateCoverPreview(article.coverImage); (article.tags || []).forEach(createTagPill); editor.setMarkdown(article.content || ''); document.getElementById('save-btn').dataset.id = id; setEditorDirty(false); } else { document.getElementById('editor-date').value = new Date().toISOString().split('T')[0]; delete document.getElementById('save-btn').dataset.id; setEditorDirty(true); } document.getElementById('delete-btn').dataset.id = id; document.getElementById('delete-btn').style.display = id ? 'block' : 'none'; if (window.innerWidth < 768) setupEditorTabs('edit'); document.getElementById('editor-overlay').style.display = 'flex'; document.body.classList.add('overflow-hidden'); }
-    function closeEditor() { if (editorIsDirty && !confirm('有未儲存的變更，確定要離開嗎？')) return; document.getElementById('editor-overlay').style.display = 'none'; document.body.classList.remove('overflow-hidden'); setEditorDirty(false); }
-    async function saveArticle() { /* Unchanged */ }
-    async function copyArticle(id) { /* Unchanged */ }
-    function setupEditorTabs(activeTab) { /* Unchanged */ }
+    }
+    
     function setEditorDirty(v) { editorIsDirty = v; document.getElementById('dirty-indicator').style.background = v ? '#ef4444' : '#a0aec0'; }
-    function updateCoverPreview(url) { const p = document.getElementById('cover-preview'); p.style.display = url ? 'block' : 'none'; if (url) p.src = url; }
-    function resetEditorForm() { document.getElementById('editor-title').value = ''; document.getElementById('editor-date').value = ''; document.getElementById('editor-cover-image-url').value = ''; document.getElementById('cover-upload').value = ''; updateCoverPreview(''); document.getElementById('tags-input-container').querySelectorAll('.tag-pill').forEach(el => el.remove()); editor?.setMarkdown(''); document.getElementById('upload-progress-container').style.display = 'none'; setEditorDirty(false); }
+    function closeEditor() { if (editorIsDirty && !confirm('有未儲存的變更，確定要離開嗎？')) return; document.getElementById('editor-overlay').style.display = 'none'; document.body.classList.remove('overflow-hidden'); setEditorDirty(false); }
+    function resetEditorForm() { ['editor-title', 'editor-date', 'editor-cover-image-url', 'cover-upload'].forEach(id => document.getElementById(id).value = ''); updateCoverPreview(''); document.getElementById('tags-input-container').querySelectorAll('.tag-pill').forEach(el => el.remove()); editor?.setMarkdown(''); document.getElementById('upload-progress-container').style.display = 'none'; setEditorDirty(false); }
     function getTagsFromEditor() { return [...document.getElementById('tags-input-container').querySelectorAll('.tag-pill')].map(p => p.dataset.tag); }
     function createTagPill(tag) { tag = tag.trim(); if (!tag || getTagsFromEditor().includes(tag)) return; const pill = document.createElement('span'); const bgColor = getTagColor(tag); const textColor = getTextColorForBg(bgColor); pill.className = 'tag-pill flex items-center text-sm font-medium pl-2.5 pr-1 py-0.5 rounded-full'; pill.style.backgroundColor = bgColor; pill.style.color = textColor; pill.dataset.tag = tag; pill.innerHTML = `${tag} <button type="button" class="ml-1.5 flex-shrink-0 h-4 w-4 rounded-full inline-flex items-center justify-center" style="color: ${textColor}80; hover { background: ${textColor}20"><svg fill="currentColor" viewBox="0 0 20 20"><path d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg></button>`; document.getElementById('tags-input-container').insertBefore(pill, document.getElementById('tags-input')); }
-    function switchView(viewName) { ['home-view', 'article-view', 'tags-view', 'tag-manager-view', 'loading-view'].forEach(id => document.getElementById(id).classList.toggle('active', id === viewName)); window.scrollTo(0, 0); if(viewName !== 'article-view') appState.currentArticleId = null; const activeNav = { 'home': 'home', 'article': 'home', 'tags': 'tags', 'tag-manager': 'tag-manager' }[viewName.split('-')[0]]; document.querySelectorAll('.nav-link').forEach(n => n.classList.toggle('active-nav', n.dataset.nav === activeNav)); }
-    function showConfirmation(title, message, onConfirm) { /* Unchanged */ } function toggleEditorSettings() { /* Unchanged */ } function initTagColorPalette() { /* Unchanged */ }
+    function switchView(viewName) { ['home-view', 'article-view', 'tags-view', 'tag-manager-view', 'loading-view'].forEach(id => document.getElementById(id).classList.toggle('active', id === viewName)); window.scrollTo(0, 0); if(viewName !== 'article-view') appState.currentArticleId = null; const activeNav = { 'home': 'home', 'article': 'home', 'tags': 'tags', 'tag-manager': 'tag-manager' }[viewName.split('-')[0]]; document.querySelectorAll('.nav-link').forEach(n => n.classList.toggle('active-nav', n.dataset.nav === activeNav)); document.getElementById('header-title').textContent = {home:'最新文章',tags:'所有標籤','tag-manager':'管理標籤'}[viewName.split('-')[0]] || '文章'; }
+    function showConfirmation(title, message, onConfirm) { document.getElementById('confirmation-title').textContent = title; document.getElementById('confirmation-message').textContent = message; document.getElementById('confirmation-modal').style.display = 'flex'; confirmationCallback = onConfirm; }
+    function updateCoverPreview(url) { const p = document.getElementById('cover-preview'); if(p) { p.style.display = url ? 'block' : 'none'; if(url) p.src = url; } }
+    function uploadCoverImage(file, id) { return new Promise((resolve, reject) => { const fileRef = storageRef(storage, `covers/${id}_${Date.now()}_${file.name}`); const uploadTask = uploadBytesResumable(fileRef, file); document.getElementById('upload-progress-container').style.display = 'block'; uploadTask.on('state_changed', s => { document.getElementById('upload-progress-bar').style.width = ((s.bytesTransferred / s.totalBytes) * 100) + '%'; }, e => reject(e), async () => resolve(await getDownloadURL(uploadTask.snapshot.ref))); }); }
+    
+    // --- Event Listeners ---
+    document.addEventListener('DOMContentLoaded', () => {
+        loadData();
+        
+        // Delegated event listener for the whole document
+        document.body.addEventListener('click', e => {
+            const target = e.target;
+            const closest = (selector) => target.closest(selector);
+            
+            // Sidebar and Nav
+            if (closest('#sidebar-toggle')) toggleSidebar();
+            if (closest('#sidebar-backdrop')) toggleSidebar(false);
+            if (closest('#site-title-sidebar')) { document.getElementById('search-input').value = ''; sortArticles(); switchView('home-view'); if (window.innerWidth < 768) toggleSidebar(false); }
+            const navLink = closest('.nav-link');
+            if (navLink) { e.preventDefault(); const nav = navLink.dataset.nav; if (nav === 'home') { sortArticles(); switchView('home-view'); } else if (nav === 'tags') { renderAllTagsPage(); switchView('tags-view'); } else if (nav === 'new-article') openEditor(); else if (nav === 'tag-manager') { renderTagManager(); switchView('tag-manager-view'); } if (window.innerWidth < 768) toggleSidebar(false); return; }
+            if (closest('.back-to-list-btn')) { switchView('home-view'); return; }
+            
+            // Article Grid Actions
+            const articleCard = closest('.article-card');
+            if (articleCard) {
+                const id = articleCard.dataset.id;
+                if (closest('.card-edit-btn')) { openEditor(id); }
+                else if (closest('.card-copy-btn')) { copyArticle(id); }
+                else if (closest('.card-delete-btn')) { deleteArticle(id); }
+                else if (closest('.card-link')) { e.preventDefault(); renderArticle(id); }
+                return;
+            }
+
+            // Tag Filtering
+            const tagFilterBtn = closest('.tag-filter-btn');
+            if(tagFilterBtn) { const tag = tagFilterBtn.dataset.tag; const ids = appState.sortedIds.filter(id => (appState.articles[id].tags||[]).includes(tag)); renderArticleGrid(ids); document.getElementById('page-title').textContent = `標籤: #${tag}`; switchView('home-view'); if (window.innerWidth < 768) toggleSidebar(false); return; }
+            
+            // Editor Actions
+            if (closest('#save-btn')) saveArticle();
+            if (closest('#cancel-btn')) closeEditor();
+            if (closest('#delete-btn')) deleteArticle(closest('#delete-btn').dataset.id);
+            if (closest('.tag-pill button')) { closest('.tag-pill').remove(); setEditorDirty(true); }
+            if (closest('#editor-tab-edit')) setupEditorTabs('edit');
+            if (closest('#editor-tab-preview')) setupEditorTabs('preview');
+            if (closest('#toggle-settings')) { const content = document.getElementById('editor-settings-content'); const icon = document.getElementById('toggle-settings-icon'); const isHidden = content.style.display === 'none'; content.style.display = isHidden ? 'block' : 'none'; icon.style.transform = `rotate(${isHidden ? 0 : 180}deg)`; }
+
+            // Tag Manager Actions
+            if (closest('#add-new-tag-btn')) { const name = document.getElementById('new-tag-name').value.trim(); const color = document.getElementById('new-tag-color').value; if(name) { appState.tagColors[name] = color; saveTagColors().then(() => { document.getElementById('new-tag-name').value = ''; showToast(`已新增標籤: ${name}`, 'success'); renderTagManager(); processData(); }); } }
+            if (closest('#save-tag-colors')) { const colors = {}; document.querySelectorAll('.tag-color-input').forEach(i => colors[i.dataset.tag] = i.value); appState.tagColors = colors; saveTagColors(); }
+            const deleteTagBtn = closest('.delete-tag-btn');
+            if (deleteTagBtn) { const tag = deleteTagBtn.dataset.tag; showConfirmation(`確定刪除標籤 "${tag}"?`, '相關文章中的此標籤也會被移除。', () => { delete appState.tagColors[tag]; const updates = {}; Object.values(appState.articles).forEach(art => { if ((art.tags || []).includes(tag)) { updates[`/blogData/articles/${art.id}/tags`] = art.tags.filter(t => t !== tag); } }); update(ref(db), updates).then(() => { saveTagColors(); showToast('標籤已刪除', 'success'); }); }); }
+            const paletteColor = closest('.palette-color');
+            if (paletteColor) { document.getElementById('new-tag-color').value = paletteColor.dataset.color; document.querySelectorAll('.palette-color').forEach(el => el.classList.remove('ring-2', 'ring-sky-500')); paletteColor.classList.add('ring-2', 'ring-sky-500'); }
+
+            // Confirmation Modal
+            if (closest('#confirm-action-btn')) confirmationCallback && confirmationCallback();
+            if (closest('#confirm-cancel-btn') || !closest('#confirmation-modal > div')) document.getElementById('confirmation-modal').style.display = 'none';
+
+            // Theme Toggle & Admin Mode
+            if (closest('#theme-toggle')) { const isDark = !document.documentElement.classList.contains('dark'); localStorage.setItem('theme', isDark ? 'dark' : 'light'); document.documentElement.classList.toggle('dark', isDark); document.getElementById('hl-light').disabled = isDark; document.getElementById('hl-dark').disabled = !isDark; if(editor) editor.setTheme(isDark ? 'dark' : 'light'); }
+            if (closest('#copyright-info')) { const p = prompt('Admin Password:'); if (p === "980621") toggleAdminMode(!appState.isEditMode); else if (p) alert('密碼錯誤！'); }
+        });
+        
+        document.getElementById('sort-order').addEventListener('change', sortArticles);
+        document.getElementById('search-input').addEventListener('input', e => { setTimeout(() => { const q = e.target.value.trim(); if (!q) { sortArticles(); return; } const results = searchIndex.search(q + '*').map(r => r.ref); renderArticleGrid(results); document.getElementById('page-title').textContent = `搜尋結果: "${q}"`; switchView('home-view'); }, 250); });
+        
+        const palette = document.getElementById('tag-color-palette');
+        palette.innerHTML = TAG_PALETTE.map(c => `<div class="palette-color h-8 w-8 rounded-full cursor-pointer" data-color="${c}" style="background-color:${c}"></div>`).join('');
+        palette.firstChild.classList.add('ring-2', 'ring-sky-500');
+        
+        async function saveTagColors() { await set(ref(db, 'blogData/tagColors'), appState.tagColors); showToast('顏色已儲存', 'success'); loadData(); }
+        
+        window.addEventListener('beforeunload', (e) => { if (editorIsDirty) { e.preventDefault(); e.returnValue = ''; } });
+    });
 </script>
 </body>
 </html>
